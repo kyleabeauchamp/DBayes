@@ -1,0 +1,17 @@
+<ForceField>
+ <AtomTypes>
+  <Type name="C" class="C" element="C" mass="12."/>
+ </AtomTypes>
+ <Residues>
+  <Residue name="C">
+   <Atom name="c" type="C"/>
+  </Residue>
+ </Residues>
+ <HarmonicBondForce>
+  <Bond class1="OW" class2="HW" length="0.141181082494" k="462750.4"/>
+ </HarmonicBondForce>
+ <NonbondedForce coulomb14scale="0.833333" lj14scale="0.5">
+  <Atom type="C" charge="0.0" sigma="0.317796456355" epsilon="1.652143528104" />
+ </NonbondedForce>
+</ForceField>
+
