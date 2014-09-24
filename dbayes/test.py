@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import simtk.openmm.app as app
 import simtk.openmm as mm
@@ -25,12 +26,12 @@ mmtop.setUnitCellDimensions(mm.Vec3(*traj.unitcell_lengths[0]) * u.nanometer)
 system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic)
 
 output_frequency = 100
-temperature = 95 * u.kelvin
+temperature = 105 * u.kelvin
 friction = 1.0 / u.picoseconds
-timestep = 5.0 * u.femtoseconds
+timestep = 3.0 * u.femtoseconds
 pressure = 1.0 * u.atmospheres
 barostat_frequency = 25
-n_steps = 2500000
+n_steps = 4000000
 
 out_filename = "./%d.h5" % (temperature / u.kelvin)
 csv_filename = "./%d.csv" % (temperature / u.kelvin)
@@ -49,10 +50,9 @@ simulation.context.setVelocitiesToTemperature(temperature)
 simulation.step(n_steps)
 
 x = pd.read_csv(csv_filename)["Density (g/mL)"]
-x[1000:].mean()
+x[10000:].mean()
 
 """
-095 K: 0.604584
-100 K: 0.593844
-105 K: 0.598710
+095 K: 0.6061323239846188
+105 K: 0.5974042439570022
 """
