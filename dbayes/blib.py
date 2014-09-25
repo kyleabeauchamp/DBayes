@@ -19,7 +19,7 @@ measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopas
 
 ff = app.ForceField("./test.xml")
 
-def build_top(n_atoms=300, scaling=3.0):
+def build_top(n_atoms=300, scaling=4.0):
     top = []
     for i in range(n_atoms):
         top.append(dict(serial=(i+1), name="C", element="C", resSeq=(i+1), resName="C", chainID=(i+1)))
@@ -57,7 +57,8 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     #out_filename = "./%d.h5" % (temperature / u.kelvin)
     csv_filename = "./%d.csv" % (temperature / u.kelvin)
 
-    integrator = mm.LangevinIntegrator(temperature, friction, timestep)
+    #integrator = mm.VariableLangevinIntegrator(temperature, friction, timestep)
+    integrator = mm.LangevinIntegrator(temperature, friction, 1E-3)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
     simulation = app.Simulation(mmtop, system, integrator)
