@@ -1,3 +1,4 @@
+import sys
 import pymbar
 import pymc as pm
 import numpy as np
@@ -61,7 +62,7 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
 
     simulation = app.Simulation(mmtop, system, integrator)
 
-
+    simulation.reporters.append(app.StateDataReporter(sys.stdout, 2500, density=True))
     simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
     simulation.context.setPositions(traj.openmm_positions(0))
 
