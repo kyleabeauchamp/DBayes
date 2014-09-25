@@ -43,7 +43,7 @@ def set_parms(f, sigma, epsilon, q=0.0):
 def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05):
     system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=1.0 * u.nanometer)
     f = system.getForce(0)
-    set_parms(f, sigma.value, epsilon.value)
+    set_parms(f, sigma, epsilon)
 
     measurement = measurements[0]
     output_frequency = 250
