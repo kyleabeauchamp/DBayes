@@ -17,13 +17,12 @@ sigma.value = 0.35
 epsilon.value = 20.0
 
 measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopascals, density=1584.36 * u.kilograms / (u.meter ** 3.))]
-#measurements.append(dict(temperature=313.15 * u.kelvin, pressure=101.325 * u.kilopascals, density=1554.96 * u.kilograms / (u.meter ** 3.)))
 
 ff = app.ForceField("./test.xml")
 
 traj, mmtop = blib.build_top()
 
-#system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
+system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma.value, epsilon.value)
 #t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
 
 #x[t:].mean()
@@ -32,6 +31,7 @@ traj, mmtop = blib.build_top()
 
 @pymc.deterministic
 def density(sigma=sigma, epsilon=epsilon):
+    print(sigma, epsilon)
     system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     return x[t:].mean()

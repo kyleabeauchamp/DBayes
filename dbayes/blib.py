@@ -19,7 +19,7 @@ measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopas
 
 ff = app.ForceField("./test.xml")
 
-def build_top(n_atoms=300):
+def build_top(n_atoms=300, scaling=3.0):
     top = []
     for i in range(n_atoms):
         top.append(dict(serial=(i+1), name="C", element="C", resSeq=(i+1), resName="C", chainID=(i+1)))
@@ -28,7 +28,7 @@ def build_top(n_atoms=300):
     bonds = np.zeros((0, 2), dtype='int')
     top = md.Topology.from_dataframe(top, bonds)
     xyz = np.random.normal(size=(n_atoms, 3))
-    lengths = 4.0 * np.ones((1, 3))
+    lengths = scaling * np.ones((1, 3))
     angles = 90.0 * np.ones((1, 3))
     traj = md.Trajectory(xyz, top, unitcell_lengths=lengths, unitcell_angles=angles)
     
