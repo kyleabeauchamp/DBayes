@@ -54,7 +54,7 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     barostat_frequency = 25
     n_steps = 500000
 
-    out_filename = "./%d.h5" % (temperature / u.kelvin)
+    #out_filename = "./%d.h5" % (temperature / u.kelvin)
     csv_filename = "./%d.csv" % (temperature / u.kelvin)
 
     integrator = mm.LangevinIntegrator(temperature, friction, timestep)
@@ -82,4 +82,4 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
         if density_mean_stderr < stderr_tolerance:
             converged = True
     
-    return system, d
+    return system, d.Density.values
