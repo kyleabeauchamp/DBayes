@@ -8,22 +8,25 @@ import mdtraj as md
 ff = app.ForceField("./test.xml")
 
 
-n_atoms = 300
-top = []
-for i in range(n_atoms):
-    top.append(dict(serial=(i+1), name="C", element="C", resSeq=(i+1), resName="C", chainID=(i+1)))
+def build_top(n_atoms=300):
+    top = []
+    for i in range(n_atoms):
+        top.append(dict(serial=(i+1), name="C", element="C", resSeq=(i+1), resName="C", chainID=(i+1)))
 
-top = pd.DataFrame(top)
-bonds = np.zeros((0, 2), dtype='int')
-top = md.Topology.from_dataframe(top, bonds)
-xyz = np.random.normal(size=(n_atoms, 3))
-lengths = 4.0 * np.ones((1, 3))
-traj = md.Trajectory(xyz, top, unitcell_lengths=lengths)
+    top = pd.DataFrame(top)
+    bonds = np.zeros((0, 2), dtype='int')
+    top = md.Topology.from_dataframe(top, bonds)
+    xyz = np.random.normal(size=(n_atoms, 3))
+    lengths = 4.0 * np.ones((1, 3))
+    angles = 90.0 * np.ones((1, 3))
+    traj = md.Trajectory(xyz, top, unitcell_lengths=lengths, unitcell_angles=angles)
+    
+    mmtop = traj.top.to_openmm(traj=traj)
+    
+    return traj, mmtop
 
-
-mmtop = traj.top.to_openmm()
-mmtop.setUnitCellDimensions(mm.Vec3(*traj.unitcell_lengths[0]) * u.nanometer)
-system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic)
+traj, mmtop = build_top()
+system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=1.0 * u.nanometer)
 
 output_frequency = 100
 temperature = 105 * u.kelvin
