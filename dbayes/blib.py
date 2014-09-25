@@ -1,3 +1,5 @@
+import os
+import tempfile
 import sys
 import pymbar
 import pymc as pm
@@ -55,7 +57,9 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     n_steps = 500000
 
     #out_filename = "./%d.h5" % (temperature / u.kelvin)
-    csv_filename = "./%d.csv" % (temperature / u.kelvin)
+    #csv_filename = "./%d.csv" % (temperature / u.kelvin)
+    path = tempfile.mkdtemp()
+    csv_filename = os.path.join(path, "density.csv")
 
     #integrator = mm.VariableLangevinIntegrator(temperature, friction, timestep)
     integrator = mm.LangevinIntegrator(temperature, friction, 1E-3)
