@@ -15,12 +15,14 @@ epsilon = pymc.Uniform("epsilon", 1.0, 40.0)
 
 sigma.value = 0.35
 epsilon.value = 20.0
+atoms_per_dim = 7
 
 measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopascals, density=1584.36 * u.kilograms / (u.meter ** 3.))]
 
 ff = app.ForceField("./test.xml")
 
-traj, mmtop = blib.build_top()
+#xyz = blib.build_box(atoms_per_dim, sigma.value)
+traj, mmtop = blib.build_top(atoms_per_dim, sigma.value)
 
 simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma.value, epsilon.value)
 #t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)

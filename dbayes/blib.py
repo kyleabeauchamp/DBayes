@@ -21,7 +21,21 @@ measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopas
 
 ff = app.ForceField("./test.xml")
 
-def build_top(n_atoms=300, scaling=4.0):
+def build_box(atoms_per_dim, sigma):
+    x_grid = np.arange(0, atoms_per_dim) * sigma
+    xyz = []
+    for i in range(atoms_per_dim):
+        for j in range(atoms_per_dim):
+            for k in range(atoms_per_dim):
+                xyz.append(x_grid[[i, j, k]])
+    
+    xyz = np.array([xyz])
+    return xyz
+
+def build_top(atoms_per_dim, sigma):
+    
+    n_atoms = atoms_per_dim ** 3
+    
     top = []
     for i in range(n_atoms):
         top.append(dict(serial=(i+1), name="C", element="C", resSeq=(i+1), resName="C", chainID=(i+1)))
@@ -29,8 +43,14 @@ def build_top(n_atoms=300, scaling=4.0):
     top = pd.DataFrame(top)
     bonds = np.zeros((0, 2), dtype='int')
     top = md.Topology.from_dataframe(top, bonds)
-    xyz = np.random.normal(size=(n_atoms, 3))
-    lengths = scaling * np.ones((1, 3))
+    #xyz = np.random.normal(size=(n_atoms, 3))
+    
+    xyz = build_box(atoms_per_dim, sigma)
+    
+    box_length = (atoms_per_dim + 1) * sigma
+    #lengths = scaling * np.ones((1, 3))
+    lengths = box_length * np.ones((1, 3))
+    
     angles = 90.0 * np.ones((1, 3))
     traj = md.Trajectory(xyz, top, unitcell_lengths=lengths, unitcell_angles=angles)
     
