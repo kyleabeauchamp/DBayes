@@ -59,6 +59,7 @@ def build_top(atoms_per_dim, sigma):
     return traj, mmtop
 
 def set_parms(f, sigma, epsilon, q=0.0):
+    print("sigma=%f, epsilon=%f" % (sigma, epsilon))
     for k in range(f.getNumParticles()):
         f.setParticleParameters(k, q * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
 
