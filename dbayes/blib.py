@@ -87,4 +87,4 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
         if density_mean_stderr < stderr_tolerance:
             converged = True
     
-    return system, d.Density.values
+    return simulation, system, d.Density.values

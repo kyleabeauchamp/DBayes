@@ -10,8 +10,8 @@ import mdtraj as md
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
-sigma = pymc.Uniform("sigma", 0.05, 1.0)
-epsilon = pymc.Uniform("sigma", 0.0, 100.0)
+sigma = pymc.Uniform("sigma", 0.1, 0.7)
+epsilon = pymc.Uniform("epsilon", 1.0, 40.0)
 
 sigma.value = 0.35
 epsilon.value = 20.0
@@ -22,7 +22,7 @@ ff = app.ForceField("./test.xml")
 
 traj, mmtop = blib.build_top()
 
-system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma.value, epsilon.value)
+simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma.value, epsilon.value)
 #t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
 
 #x[t:].mean()
@@ -35,3 +35,12 @@ def density(sigma=sigma, epsilon=epsilon):
     system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     return x[t:].mean()
+
+
+@pymc.potential
+def error(density=density):
+    mu = measurements[0]["density"] / (u.grams / u.milliliter)
+    sigma = 0.05
+    return -((mu - density) / sigma) ** 2.
+
+variables = [density, error, sigma, epsilon]
