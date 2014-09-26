@@ -21,15 +21,7 @@ measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopas
 
 ff = app.ForceField("./test.xml")
 
-#xyz = blib.build_box(atoms_per_dim, sigma.value)
 traj, mmtop = blib.build_top(atoms_per_dim, sigma.value)
-
-simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma.value, epsilon.value)
-#t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
-
-#x[t:].mean()
-#x[t:].std() / N_eff ** 0.5
-
 
 @pymc.deterministic
 def density(sigma=sigma, epsilon=epsilon):
@@ -37,7 +29,6 @@ def density(sigma=sigma, epsilon=epsilon):
     simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     return x[t:].mean()
-
 
 @pymc.potential
 def error(density=density):
@@ -48,4 +39,5 @@ def error(density=density):
 variables = [density, error, sigma, epsilon]
 model = pymc.Model(variables)
 mcmc = pymc.MCMC(model)
-mcmc.sample(10)
+
+mcmc.sample(25)
