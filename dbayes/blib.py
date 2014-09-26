@@ -63,13 +63,12 @@ def set_parms(f, sigma, epsilon, q=0.0):
     for k in range(f.getNumParticles()):
         f.setParticleParameters(k, q * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
 
-def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.4*u.nanometer):
+def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.4*u.nanometer, output_frequency=250):
     system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=nonbondedCutoff)
     f = system.getForce(0)
     set_parms(f, sigma, epsilon)
 
     measurement = measurements[0]
-    output_frequency = 250
     temperature = measurement["temperature"]
     pressure = measurement["pressure"]
     friction = 1.0 / u.picoseconds
@@ -84,7 +83,7 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
 
     simulation = app.Simulation(mmtop, system, integrator)
 
-    simulation.reporters.append(app.StateDataReporter(sys.stdout, 25000, density=True))
+    simulation.reporters.append(app.StateDataReporter(sys.stdout, 50000, step=True, density=True))
     simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
     simulation.context.setPositions(traj.openmm_positions(0))
 
