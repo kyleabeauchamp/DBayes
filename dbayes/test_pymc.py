@@ -10,8 +10,8 @@ import mdtraj as md
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
-sigma = pymc.Uniform("sigma", 0.1, 0.7)
-epsilon = pymc.Uniform("epsilon", 1.0, 40.0)
+sigma = pymc.Uniform("sigma", 0.3, 0.4)
+epsilon = pymc.Uniform("epsilon", 15.0, 25.0)
 
 sigma.value = 0.35
 epsilon.value = 20.0
@@ -34,7 +34,7 @@ simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], 
 @pymc.deterministic
 def density(sigma=sigma, epsilon=epsilon):
     print(sigma, epsilon)
-    system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
+    simulation, system, x = blib.build(traj, mmtop, measurements[0]["temperature"], measurements[0]["pressure"], sigma, epsilon)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     return x[t:].mean()
 
@@ -46,3 +46,6 @@ def error(density=density):
     return -((mu - density) / sigma) ** 2.
 
 variables = [density, error, sigma, epsilon]
+model = pymc.Model(variables)
+mcmc = pymc.MCMC(model)
+mcmc.sample(10)

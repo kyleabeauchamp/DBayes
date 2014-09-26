@@ -62,7 +62,7 @@ def set_parms(f, sigma, epsilon, q=0.0):
     for k in range(f.getNumParticles()):
         f.setParticleParameters(k, q * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
 
-def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05):
+def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000):
     system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=1.0 * u.nanometer)
     f = system.getForce(0)
     set_parms(f, sigma, epsilon)
@@ -74,7 +74,6 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     friction = 1.0 / u.picoseconds
     timestep = 3.0 * u.femtoseconds
     barostat_frequency = 25
-    n_steps = 500000
 
     #out_filename = "./%d.h5" % (temperature / u.kelvin)
     #csv_filename = "./%d.csv" % (temperature / u.kelvin)
