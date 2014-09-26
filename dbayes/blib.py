@@ -95,11 +95,9 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
 
     converged = False
     while not converged:
-        print("Simulating %d steps" % n_steps)
         simulation.step(n_steps)
         d = pd.read_csv(csv_filename, names=["Density"], skiprows=1)
         density_ts = np.array(d.Density)
-        print(density_ts.mean())
         [t0, g, Neff] = pymbar.timeseries.detectEquilibration_fft(density_ts)
         density_ts = density_ts[t0:]
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)

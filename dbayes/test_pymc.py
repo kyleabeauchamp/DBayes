@@ -10,11 +10,9 @@ import mdtraj as md
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
-sigma = pymc.Uniform("sigma", 0.325, 0.375)
-epsilon = pymc.Uniform("epsilon", 18.0, 23.0)
+sigma = pymc.Uniform("sigma", 0.325, 0.375, value=0.35)
+epsilon = pymc.Uniform("epsilon", 18.0, 23.0, value=20.0)
 
-sigma.value = 0.35
-epsilon.value = 20.0
 atoms_per_dim = 7
 
 measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopascals, density=1584.36 * u.kilograms / (u.meter ** 3.))]
@@ -30,14 +28,12 @@ def density(sigma=sigma, epsilon=epsilon):
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     return x[t:].mean()
 
-@pymc.potential
-def error(density=density):
-    mu = measurements[0]["density"] / (u.grams / u.milliliter)
-    sigma = 0.05
-    return -((mu - density) / sigma) ** 2.
+measurement = pymc.Normal("observed_density", mu=density, tau=1.0, value=measurements[0]["density"] / (u.grams / u.milliliter), observed=True)
 
-variables = [density, error, sigma, epsilon]
+variables = [density, measurement, sigma, epsilon]
 model = pymc.Model(variables)
 mcmc = pymc.MCMC(model)
 
-mcmc.sample(25)
+mcmc.sample(15)
+mcmc.trace("sigma")[:]
+mcmc.trace("epsilon")[:]
