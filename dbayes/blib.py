@@ -59,12 +59,12 @@ def build_top(atoms_per_dim, sigma):
     return traj, mmtop
 
 def set_parms(f, sigma, epsilon, q=0.0):
-    print("sigma=%f, epsilon=%f" % (sigma, epsilon))
+    print("\nsigma=%f, epsilon=%f" % (sigma, epsilon))
     for k in range(f.getNumParticles()):
         f.setParticleParameters(k, q * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
 
-def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000):
-    system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=1.0 * u.nanometer)
+def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.4*u.nanometer):
+    system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=nonbondedCutoff)
     f = system.getForce(0)
     set_parms(f, sigma, epsilon)
 
@@ -76,12 +76,9 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     timestep = 3.0 * u.femtoseconds
     barostat_frequency = 25
 
-    #out_filename = "./%d.h5" % (temperature / u.kelvin)
-    #csv_filename = "./%d.csv" % (temperature / u.kelvin)
     path = tempfile.mkdtemp()
     csv_filename = os.path.join(path, "density.csv")
 
-    #integrator = mm.VariableLangevinIntegrator(temperature, friction, timestep)
     integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
