@@ -62,7 +62,7 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     csv_filename = os.path.join(path, "density.csv")
 
     #integrator = mm.VariableLangevinIntegrator(temperature, friction, timestep)
-    integrator = mm.LangevinIntegrator(temperature, friction, 1E-3)
+    integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
     simulation = app.Simulation(mmtop, system, integrator)
