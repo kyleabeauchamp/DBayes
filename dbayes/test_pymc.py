@@ -10,8 +10,8 @@ import mdtraj as md
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
-sigma = pymc.Uniform("sigma", 0.3, 0.4)
-epsilon = pymc.Uniform("epsilon", 15.0, 25.0)
+sigma = pymc.Uniform("sigma", 0.325, 0.375)
+epsilon = pymc.Uniform("epsilon", 18.0, 23.0)
 
 sigma.value = 0.35
 epsilon.value = 20.0
