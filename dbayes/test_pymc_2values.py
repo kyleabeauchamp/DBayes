@@ -22,7 +22,7 @@ observed0 = 1.58436 * u.grams / u.milliliter
 observed0 = observed0 / (u.grams / u.milliliter)
 
 observed1 = 1.55496 * u.grams / u.milliliter
-observed1 = observed0 / (u.grams / u.milliliter)
+observed1 = observed1 / (u.grams / u.milliliter)
 
 error = 0.02
 

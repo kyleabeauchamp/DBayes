@@ -2,7 +2,6 @@ import os
 import tempfile
 import sys
 import pymbar
-import pymc as pm
 import numpy as np
 import pandas as pd
 import simtk.openmm.app as app
@@ -11,13 +10,6 @@ import simtk.unit as u
 import mdtraj as md
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
-
-sigma = pm.Uniform("sigma", 0.05, 1.0)
-epsilon = pm.Uniform("sigma", 0.0, 100.0)
-
-states = [dict(temperature=95.0, pressure=1.0), dict(temperature=105.0, pressure=1.0)]
-
-measurements = [dict(temperature=298.15 * u.kelvin, pressure=101.325 * u.kilopascals, density=1584.36 * u.kilograms / (u.meter ** 3.))]
 
 ff = app.ForceField("./test.xml")
 
@@ -43,12 +35,11 @@ def build_top(atoms_per_dim, sigma):
     top = pd.DataFrame(top)
     bonds = np.zeros((0, 2), dtype='int')
     top = md.Topology.from_dataframe(top, bonds)
-    #xyz = np.random.normal(size=(n_atoms, 3))
     
     xyz = build_box(atoms_per_dim, sigma)
     
     box_length = (atoms_per_dim + 1) * sigma
-    #lengths = scaling * np.ones((1, 3))
+
     lengths = box_length * np.ones((1, 3))
     
     angles = 90.0 * np.ones((1, 3))
@@ -72,9 +63,6 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
     f = system.getForce(0)
     set_parms(f, sigma, epsilon)
 
-    measurement = measurements[0]
-    temperature = measurement["temperature"]
-    pressure = measurement["pressure"]
     friction = 1.0 / u.picoseconds
     timestep = 3.0 * u.femtoseconds
     barostat_frequency = 25
