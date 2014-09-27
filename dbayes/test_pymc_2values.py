@@ -30,20 +30,19 @@ atoms_per_dim = 7
 
 traj, mmtop = blib.build_top(atoms_per_dim, sigma.value)
 
-
 def calc_density(sigma, epsilon, temperature):
     simulation, system, x = blib.build(traj, mmtop, temperature, pressure, sigma, epsilon, nonbondedCutoff=1.2*u.nanometer, stderr_tolerance=error)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     mu = x[t:].mean()
-    print("\nmu = %f, target = %f, z = %f" % (mu, observed, (mu - observed) / error))
     return mu
 
 density0 = pymc.Deterministic(lambda sigma, epsilon: calc_density(sigma, epsilon, temperature=temperature0), "Calculates density", "density0", dict(sigma=sigma, epsilon=epsilon), dtype='float')
 density1 = pymc.Deterministic(lambda sigma, epsilon: calc_density(sigma, epsilon, temperature=temperature1), "Calculates density", "density1", dict(sigma=sigma, epsilon=epsilon), dtype='float')
 
-measurement = pymc.Normal("observed_density", mu=density, tau=error ** -2., value=observed, observed=True)
+measurement0 = pymc.Normal("observed_density0", mu=density0, tau=error ** -2., value=observed0, observed=True)
+measurement1 = pymc.Normal("observed_density1", mu=density1, tau=error ** -2., value=observed1, observed=True)
 
-variables = [density, measurement, sigma, epsilon]
+variables = [density0, density1, measurement0, measurement1, sigma, epsilon]
 model = pymc.Model(variables)
 mcmc = pymc.MCMC(model, db='hdf5', dbname="./out.h5")
 

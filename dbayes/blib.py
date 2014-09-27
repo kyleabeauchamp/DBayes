@@ -63,7 +63,11 @@ def set_parms(f, sigma, epsilon, q=0.0):
     for k in range(f.getNumParticles()):
         f.setParticleParameters(k, q * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
 
-def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.4*u.nanometer, output_frequency=250, print_frequency=150000):
+def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.4*u.nanometer, output_frequency=250, print_frequency=None):
+    
+    if print_frequency is None:
+        print_frequency = int(n_steps / 3.)
+    
     system = ff.createSystem(mmtop, nonbondedMethod=app.CutoffPeriodic, nonbondedCutoff=nonbondedCutoff)
     f = system.getForce(0)
     set_parms(f, sigma, epsilon)
