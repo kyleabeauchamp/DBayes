@@ -100,5 +100,5 @@ def build(traj, mmtop, temperature, pressure, sigma, epsilon, stderr_tolerance=0
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)
         if density_mean_stderr < stderr_tolerance:
             converged = True
-    print("temperature, density mean, stderr = %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
+    print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
     return simulation, system, d.Density.values

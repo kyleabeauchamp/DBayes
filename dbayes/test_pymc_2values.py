@@ -38,8 +38,8 @@ def calc_density(sigma, epsilon, temperature):
     print("\nmu = %f, target = %f, z = %f" % (mu, observed, (mu - observed) / error))
     return mu
 
-density0 = pymc.Deterministic(lambda x, y: calc_density(x, y, temperature=temperature0), "Calculates density", "density1", dict(sigma=sigma, epsilon=epsilon), dtype='float')
-density1 = pymc.Deterministic(lambda x, y: calc_density(x, y, temperature=temperature1), "Calculates density", "density1", dict(sigma=sigma, epsilon=epsilon), dtype='float')
+density0 = pymc.Deterministic(lambda sigma, epsilon: calc_density(sigma, epsilon, temperature=temperature0), "Calculates density", "density0", dict(sigma=sigma, epsilon=epsilon), dtype='float')
+density1 = pymc.Deterministic(lambda sigma, epsilon: calc_density(sigma, epsilon, temperature=temperature1), "Calculates density", "density1", dict(sigma=sigma, epsilon=epsilon), dtype='float')
 
 measurement = pymc.Normal("observed_density", mu=density, tau=error ** -2., value=observed, observed=True)
 
@@ -48,10 +48,3 @@ model = pymc.Model(variables)
 mcmc = pymc.MCMC(model, db='hdf5', dbname="./out.h5")
 
 mcmc.sample(10000)
-s = mcmc.trace("sigma")[:]
-e = mcmc.trace("epsilon")[:]
-
-import pymc
-db = pymc.database.hdf5.load("./1temp.h5")
-s = db.trace("sigma")[:]
-e = db.trace("epsilon")[:]
