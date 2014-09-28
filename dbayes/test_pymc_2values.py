@@ -11,7 +11,7 @@ import mdtraj as md
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
 sigma = pymc.Uniform("sigma", 0.53, 0.57, value=0.545)
-epsilon = pymc.Uniform("epsilon", 5.0, 25.0, value=13.0)
+epsilon = pymc.Uniform("epsilon", 5.0, 25.0, value=13.0, observed=True)
 
 temperature0 = 298.15 * u.kelvin
 temperature1 = 313.15 * u.kelvin
@@ -44,6 +44,6 @@ measurement1 = pymc.Normal("observed_density1", mu=density1, tau=error ** -2., v
 
 variables = [density0, density1, measurement0, measurement1, sigma, epsilon]
 model = pymc.Model(variables)
-mcmc = pymc.MCMC(model, db='hdf5', dbname="./out.h5")
+mcmc = pymc.MCMC(model, db='hdf5', dbname="./out2.h5")
 
 mcmc.sample(10000)
