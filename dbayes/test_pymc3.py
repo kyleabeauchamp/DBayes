@@ -1,4 +1,3 @@
-import cPickle
 import sys
 import blib
 import pymc
@@ -8,10 +7,8 @@ import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
 
-transform = lambda state : np.fromstring(cPickle.dumps(state))
-untransform = lambda state_array: cPickle.loads(state_array.tostring())
-
 ff = blib.ff
+
 
 def set_parms(f, sigma, epsilon, q=0.0):
     print("\nsigma=%f, epsilon=%f" % (sigma, epsilon))
@@ -56,15 +53,13 @@ def propagate(simulation, state, temperature, sigma, epsilon):
     simulation.step(5000)
     
     state = simulation.context.getState(getPositions=True, getParameters=True, getEnergy=True)
-    return transform(state)
-    #state = cPickle.dumps(state)
-    #state = 
-    #state = simulation.context.createCheckpoint()
-    #return np.fromstring(state)
+
+    return state
 
 mass = 12.01078 * u.daltons + 4 * 35.4532 * u.daltons
 
-sigma = pymc.Uniform("sigma", 0.53, 0.57, value=0.545)
+#sigma = pymc.Uniform("sigma", 0.53, 0.57, value=0.545)
+sigma0 = 0.545
 epsilon = 13.0
 
 observed = 1.58436 * u.grams / u.milliliter
@@ -79,55 +74,33 @@ kt = kB * temperature
 atoms_per_dim = 7
 n_atoms = atoms_per_dim ** 3
 
-traj, mmtop = blib.build_top(atoms_per_dim, sigma.value)
+traj, mmtop = blib.build_top(atoms_per_dim, sigma0)
 
-simulation = setup(traj, mmtop, temperature, pressure, sigma.value, epsilon)
-state_array = transform(simulation.context.getState(getPositions=True, getParameters=True, getEnergy=True))
-state = untransform(state_array)
-
-
-@pymc.stochastic(dtype="O")
-def y(value=state, sigma=sigma):
-    def logp(value, sigma):
-        return 1.0
-        #return -value.getPotentialEnergy() / kt
-
-    def random(sigma):
-        print("stepping y")
-        print(sigma)
-        return propagate(simulation, state, temperature, sigma, epsilon)
-
-@pymc.stochastic(dtype="O")
-def x(value=state, sigma=sigma, y=y):
-    def logp(value, sigma, y):
-        state_x = value.tostring()
-        return -(y.getPotentialEnergy() - value.getPotentialEnergy()) / kt
-        #return -value.getPotentialEnergy() / kt
-
-    def random(sigma, y):
-        print(sigma)
-        return propagate(simulation, state, temperature, sigma, epsilon)
-
-@pymc.potential
-def density(y=y):
-    return 0.0
-
-#@pymc.deterministic
-#def density(y=y):
-#    v = y.getPeriodicBoxVolume()
-#    return (n_atoms * mass / v) * (1 / (u.grams / u.milliliter)) / (u.AVOGADRO_CONSTANT_NA)
-
-#measurement = pymc.Normal("observed_density", mu=density, tau=error ** -2., value=observed, observed=True)
-
-variables = [sigma, x, y, density]
-model = pymc.Model(variables)
-mcmc = pymc.MCMC(model)
-
-mcmc.use_step_method(pymc.NoStepper, y)
-
-mcmc.sample(5)
-
-s = mcmc.trace("sigma")[:]
-rho = mcmc.trace("density")[:]
+simulation = setup(traj, mmtop, temperature, pressure, sigma0, epsilon)
+state0 = simulation.context.getState(getPositions=True, getParameters=True, getEnergy=True)
 
 
+class Step(object):
+    def __init__(self, var):
+        self.var = var.name
+
+    def step(self, point):
+        new = point.copy()
+        #new[self.var] = 10 + np.random.rand() # Normal samples
+        state = point['state']
+        sigma = point['sigma']
+        new[self.var] = propagate(simulation, state, temperature, sigma, epsilon)
+
+        return new
+
+with pymc.Model() as model:
+    sigma = pymc.Uniform("sigma", 0.535, 0.565)
+    state = pymc.Flat('state')
+
+    step1 = pymc.step_methods.NUTS(vars=[sigma])
+    step2 = Step(state) # not sure how to limit this to one variable
+
+    trace = pymc.sample(10, [step1, step2])
+
+pymc.traceplot(trace[:])
+show()
