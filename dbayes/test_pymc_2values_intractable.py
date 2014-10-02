@@ -1,3 +1,4 @@
+import unpacking
 import cPickle
 import sys
 import blib
@@ -8,7 +9,7 @@ import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
 
-transform = lambda state : np.fromstring(cPickle.dumps(state))
+transform = lambda state : np.fromstring(cPickle.dumps(state), dtype='int8')
 untransform = lambda state_array: cPickle.loads(state_array.tostring())
 
 ff = blib.ff
@@ -55,8 +56,9 @@ def propagate(simulation, state, temperature, sigma, epsilon):
 
     simulation.step(5000)
     
-    state = simulation.context.getState(getPositions=True, getParameters=True, getEnergy=True)
-    return transform(state)
+    state = simulation.context.getState(getPositions=True, getVelocities=True, getForces=True, getEnergy=True, getParameters=True)
+    return state
+    #return transform(state)
     #state = cPickle.dumps(state)
     #state = 
     #state = simulation.context.createCheckpoint()
@@ -82,12 +84,19 @@ n_atoms = atoms_per_dim ** 3
 traj, mmtop = blib.build_top(atoms_per_dim, sigma.value)
 
 simulation = setup(traj, mmtop, temperature, pressure, sigma.value, epsilon)
-state_array = transform(simulation.context.getState(getPositions=True, getParameters=True, getEnergy=True))
-state = untransform(state_array)
+state0 = simulation.context.getState(getPositions=True, getVelocities=True, getForces=True, getEnergy=True, getParameters=True)
+
+unpacker = unpacking.Unpacker(state0)
+positions, velocities, forces, time, kinetic_energy, potential_energy, boxes, parameters = unpacker.state_to_tuple(state0)
+state_array = unpacker.state_to_array(state0)
+
+state2 = unpacker.array_to_state(state_array)
+simulation.context.setState(state2)
+
 
 
 @pymc.stochastic(dtype="O")
-def y(value=state, sigma=sigma):
+def y(value=state_array, sigma=sigma):
     def logp(value, sigma):
         return 1.0
         #return -value.getPotentialEnergy() / kt
@@ -95,27 +104,32 @@ def y(value=state, sigma=sigma):
     def random(sigma):
         print("stepping y")
         print(sigma)
-        return propagate(simulation, state, temperature, sigma, epsilon)
+        new_state = propagate(simulation, state0, temperature, sigma, epsilon)
+        return unpacker.state_to_array(new_state)
 
 @pymc.stochastic(dtype="O")
-def x(value=state, sigma=sigma, y=y):
+def x(value=state_array, sigma=sigma, y=y):
     def logp(value, sigma, y):
-        state_x = value.tostring()
-        return -(y.getPotentialEnergy() - value.getPotentialEnergy()) / kt
+        state_x = unpacker.array_to_state(value)
+        state_y = unpacker.array_to_state(y)
+        return -(state_y.getPotentialEnergy() - state_x.getPotentialEnergy()) / kt
         #return -value.getPotentialEnergy() / kt
 
     def random(sigma, y):
         print(sigma)
-        return propagate(simulation, state, temperature, sigma, epsilon)
+        state_y = unpacker.array_to_state(y)
+        new_state = propagate(simulation, state_y, temperature, sigma, epsilon)
+        return unpacker.state_to_array(new_state)
 
-@pymc.potential
-def density(y=y):
-    return 0.0
-
-#@pymc.deterministic
+#@pymc.potential
 #def density(y=y):
-#    v = y.getPeriodicBoxVolume()
-#    return (n_atoms * mass / v) * (1 / (u.grams / u.milliliter)) / (u.AVOGADRO_CONSTANT_NA)
+#    return 0.0
+
+@pymc.deterministic
+def density(y=y):
+    state_y = unpacker.array_to_state(y)
+    v = state_y.getPeriodicBoxVolume()
+    return (n_atoms * mass / v) * (1 / (u.grams / u.milliliter)) / (u.AVOGADRO_CONSTANT_NA)
 
 #measurement = pymc.Normal("observed_density", mu=density, tau=error ** -2., value=observed, observed=True)
 
@@ -124,8 +138,9 @@ model = pymc.Model(variables)
 mcmc = pymc.MCMC(model)
 
 mcmc.use_step_method(pymc.NoStepper, y)
+mcmc.use_step_method(pymc.NoStepper, x)
 
-mcmc.sample(5)
+mcmc.sample(50)
 
 s = mcmc.trace("sigma")[:]
 rho = mcmc.trace("density")[:]
