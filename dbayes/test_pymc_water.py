@@ -23,17 +23,16 @@ pressure = 1.0 * u.atmospheres
 density_error = 0.1
 
 def calc_density(qH, sigma, epsilon, r0, theta, temperature):
-    print(qH, sigma, epsilon, r0, theta, temperature)
     x = water_lib.build(system, positions, mmtop, temperature * u.kelvin, pressure, qH, sigma, epsilon, r0, theta)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     mu = x[t:].mean()
     return mu
 
-temperatures = [pymc.Uniform("temperature %d" % i, 0.0, 1000.0, value=data.temperature[i] / u.kelvin, observed=True) for i in data.index]
+temperatures = [pymc.Uniform("temperature_%d" % i, 0.0, 1000.0, value=data.temperature[i] / u.kelvin, observed=True) for i in data.index]
 
 density_estimators = [
 pymc.Deterministic(lambda qH, sigma, epsilon, r0, theta, temperature: calc_density(qH, sigma, epsilon, r0, theta, temperature=temperature), 
-"Calculates density %d" % i, "density_estimator %d" % i, dict(qH=qH, sigma=sigma, epsilon=epsilon, r0=r0, theta=theta, temperature=temperatures[i]), dtype='float')
+"Calculates_density_%d" % i, "density_estimator_%d" % i, dict(qH=qH, sigma=sigma, epsilon=epsilon, r0=r0, theta=theta, temperature=temperatures[i]), dtype='float')
 for i in data.index
 ]
 
