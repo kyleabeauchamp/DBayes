@@ -16,13 +16,13 @@ epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.6359)
 theta = pymc.Uniform("theta", 1.7, 2.0, value=1.8242)
 r0 = pymc.Uniform("r0", 0.09, 0.11, value=0.09572)
 
-data = [dict(temperature=281.15, density=999.848), dict(temperature=301.15, density=996.234), dict(temperature=321.15, density=988.927)]
+data = [dict(temperature=281.15 * u.kelvin, density=0.999848), dict(temperature=301.15 * u.kelvin, density=0.996234), dict(temperature=321.15 * u.kelvin, density=0.988927)]
 data = pd.DataFrame(data)
 
 pressure = 1.0 * u.atmospheres
 density_error = 0.1
 
-x = water_lib.build(system, positions, mmtop, 300.0, pressure, qH.value, sigma.value, epsilon.value, r0.value, theta.value)
+#x = water_lib.build(system, positions, mmtop, 300.0 * u.kelvin, pressure, qH.value, sigma.value, epsilon.value, r0.value, theta.value)
 
 def calc_density(qH, sigma, epsilon, r0, theta, temperature):
     print(qH, sigma, epsilon, r0, theta, temperature)
