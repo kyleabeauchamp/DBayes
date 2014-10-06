@@ -22,26 +22,28 @@ data = pd.DataFrame(data)
 pressure = 1.0 * u.atmospheres
 density_error = 0.1
 
-#x = water_lib.build(system, positions, mmtop, 300.0 * u.kelvin, pressure, qH.value, sigma.value, epsilon.value, r0.value, theta.value)
-
 def calc_density(qH, sigma, epsilon, r0, theta, temperature):
     print(qH, sigma, epsilon, r0, theta, temperature)
-    x = water_lib.build(system, positions, mmtop, temperature, pressure, qH, sigma, epsilon, r0, theta)
+    x = water_lib.build(system, positions, mmtop, temperature * u.kelvin, pressure, qH, sigma, epsilon, r0, theta)
     t, g, N_eff = pymbar.timeseries.detectEquilibration_fft(x)
     mu = x[t:].mean()
     return mu
 
+temperatures = [pymc.Uniform("temperature %d" % i, 0.0, 1000.0, value=data.temperature[i] / u.kelvin, observed=True) for i in data.index]
+
 density_estimators = [
-pymc.Deterministic(lambda qH, sigma, epsilon, r0, theta: calc_density(qH, sigma, epsilon, r0, theta, temperature=t), "Calculates density %d" % i, "density_estimator %d" % i, dict(qH=qH, sigma=sigma, epsilon=epsilon, r0=r0, theta=theta), dtype='float')
-for i, d, t in data.itertuples()
+pymc.Deterministic(lambda qH, sigma, epsilon, r0, theta, temperature: calc_density(qH, sigma, epsilon, r0, theta, temperature=temperature), 
+"Calculates density %d" % i, "density_estimator %d" % i, dict(qH=qH, sigma=sigma, epsilon=epsilon, r0=r0, theta=theta, temperature=temperatures[i]), dtype='float')
+for i in data.index
 ]
 
 measurements = [
-pymc.Normal("observed_density %d" % i, mu=density_estimators[i], tau=density_error ** -2., value=d, observed=True)
-for i, d, t in data.itertuples()
+pymc.Normal("observed_density %d" % i, mu=density_estimators[i], tau=density_error ** -2., value=data.density[i], observed=True)
+for i in data.index
 ]
 
 variables = [qH, sigma, epsilon, theta, r0]
+variables.extend(temperatures)
 variables.extend(density_estimators)
 variables.extend(measurements)
 
@@ -50,5 +52,3 @@ mcmc = pymc.MCMC(model, db='hdf5', dbname="./water.h5")
 
 mcmc.sample(10000)
 
-
-x = water_lib.build(system, positions, mmtop, temperature, pressure, qH, sigma, epsilon, r0, theta)
