@@ -11,9 +11,9 @@ import mdtraj as md
 traj, mmtop, system, box, positions = water_lib.build_top()
 
 qH = pymc.Uniform("qH", 0.35, 0.5, value=0.417)
-sigma = pymc.Uniform("sigma", 0.3, 0.33, value=0.3151)
-epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.6359)
-theta = pymc.Uniform("theta", 1.7, 2.0, value=1.8242)
+sigma = pymc.Uniform("sigma", 0.3, 0.33, value=0.31507524065751241)
+epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.635968)
+theta = pymc.Uniform("theta", 1.7, 2.0, value=1.82421813418)
 r0 = pymc.Uniform("r0", 0.09, 0.11, value=0.09572)
 
 data = [dict(temperature=281.15 * u.kelvin, density=0.999848), dict(temperature=301.15 * u.kelvin, density=0.996234), dict(temperature=321.15 * u.kelvin, density=0.988927)]
@@ -37,7 +37,7 @@ for i in data.index
 ]
 
 measurements = [
-pymc.Normal("observed_density %d" % i, mu=density_estimators[i], tau=density_error ** -2., value=data.density[i], observed=True)
+pymc.Normal("observed_density_%d" % i, mu=density_estimators[i], tau=density_error ** -2., value=data.density[i], observed=True)
 for i in data.index
 ]
 
