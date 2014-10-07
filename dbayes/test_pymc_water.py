@@ -10,7 +10,7 @@ import mdtraj as md
 
 traj, mmtop, system, box, positions = water_lib.build_top()
 
-qH = pymc.Uniform("qH", 0.0, 0.5, value=0.417)
+qH = pymc.Uniform("qH", 0.35, 0.5, value=0.417)
 sigma = pymc.Uniform("sigma", 0.3, 0.33, value=0.3151)
 epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.6359)
 theta = pymc.Uniform("theta", 1.7, 2.0, value=1.8242)
