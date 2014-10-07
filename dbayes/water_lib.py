@@ -12,8 +12,8 @@ import repex
 
 ff = app.ForceField("tip3p.xml")
 
-def build_top():
-    box = repex.testsystems.WaterBox()
+def build_top(box_edge=2.1 * u.nanometers, nonbondedMethod=app.CutoffPeriodic):
+    box = repex.testsystems.WaterBox(box_edge=box_edge, nonbondedMethod=nonbondedMethod)
     system = box.system
     positions = box.positions
     

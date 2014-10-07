@@ -10,8 +10,8 @@ import mdtraj as md
 
 traj, mmtop, system, box, positions = water_lib.build_top()
 
-qH = pymc.Uniform("qH", 0.35, 0.5, value=0.417)
-sigma = pymc.Uniform("sigma", 0.3, 0.33, value=0.31507524065751241)
+qH = pymc.Uniform("qH", 0.40, 0.5, value=0.417)
+sigma = pymc.Uniform("sigma", 0.31, 0.325, value=0.31507524065751241)
 epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.635968)
 theta = pymc.Uniform("theta", 1.7, 2.0, value=1.82421813418)
 r0 = pymc.Uniform("r0", 0.09, 0.11, value=0.09572)
@@ -20,7 +20,7 @@ data = [dict(temperature=281.15 * u.kelvin, density=0.999848), dict(temperature=
 data = pd.DataFrame(data)
 
 pressure = 1.0 * u.atmospheres
-density_error = 0.1
+density_error = 0.001
 
 def calc_density(qH, sigma, epsilon, r0, theta, temperature):
     x = water_lib.build(system, positions, mmtop, temperature * u.kelvin, pressure, qH, sigma, epsilon, r0, theta)
