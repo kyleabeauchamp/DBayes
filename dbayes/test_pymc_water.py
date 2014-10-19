@@ -12,9 +12,9 @@ traj, mmtop, system, box, positions = water_lib.build_top()
 
 qH = pymc.Uniform("qH", 0.40, 0.5, value=0.417)
 sigma = pymc.Uniform("sigma", 0.31, 0.325, value=0.31507524065751241)
-epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.635968)
-theta = pymc.Uniform("theta", 1.7, 2.0, value=1.82421813418)
-r0 = pymc.Uniform("r0", 0.09, 0.11, value=0.09572)
+epsilon = pymc.Uniform("epsilon", 0.5, 1.0, value=0.635968, observed=True)
+theta = pymc.Uniform("theta", 1.7, 2.0, value=1.82421813418, observed=True)
+r0 = pymc.Uniform("r0", 0.09, 0.11, value=0.09572, observed=True)
 
 data = [dict(temperature=281.15 * u.kelvin, density=0.999848), dict(temperature=301.15 * u.kelvin, density=0.996234), dict(temperature=321.15 * u.kelvin, density=0.988927)]
 data = pd.DataFrame(data)
@@ -46,8 +46,10 @@ variables.extend(temperatures)
 variables.extend(density_estimators)
 variables.extend(measurements)
 
-model = pymc.Model(variables)
-mcmc = pymc.MCMC(model, db='hdf5', dbname="./water.h5")
+mcmc = pymc.MCMC(variables, db='hdf5', dbname="./water.h5")
 
-mcmc.sample(10000)
+mcmc.use_step_method(pymc.Metropolis, qH, proposal_sd=0.001, proposal_distribution='Normal')
+mcmc.use_step_method(pymc.Metropolis, sigma, proposal_sd=0.0005, proposal_distribution='Normal')
+
+mcmc.sample(10000, tune_throughout=False)
 

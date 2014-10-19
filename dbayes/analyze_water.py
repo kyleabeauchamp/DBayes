@@ -9,7 +9,8 @@ r0 = db.trace("r0")[:]
 theta = db.trace("theta")[:]
 
 
-for key in ["qH", "sigma", "epsilon", "r0", "theta"]:
+#for key in ["qH", "sigma", "epsilon", "r0", "theta"]:
+for key in ["qH", "sigma"]:
     x = db.trace(key)[:]
     figure()
     plot(x)
