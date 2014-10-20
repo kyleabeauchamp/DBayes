@@ -69,28 +69,28 @@ def set_constraints(system, r0, theta):
         a0, a1, d = system.getConstraintParameters(i)
         system.setConstraintParameters(i, a0, a1, r1 * u.nanometers)
 
-def set_nonbonded(f_nonbonded, qH, sigma, epsilon):
+def set_nonbonded(f_nonbonded, qH, sigma, epsilon, sigmaH, epsilonH):
     qO = -2.0 * qH
     for k in range(f_nonbonded.getNumParticles()):
         if k % 3 == 0:
             f_nonbonded.setParticleParameters(k, qO * u.elementary_charge, sigma * u.nanometer, epsilon * u.kilojoule_per_mole)
         else:
-            f_nonbonded.setParticleParameters(k, qH * u.elementary_charge, 1.0 * u.nanometer, 0.0 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(k, qH * u.elementary_charge, sigmaH * u.nanometer, epsilonH * u.kilojoule_per_mole)
 
-def set_parms(system, qH, sigma, epsilon, r0, theta):
-    print("\nqH=%f, sigma=%f, epsilon=%f r0=%f, theta=%f\n" % (qH, sigma, epsilon, r0, theta))
+def set_parms(system, qH, sigma, epsilon, sigmaH, epsilonH, r0, theta):
+    print("\nqH=%f, sigma=%f, epsilon=%f sigmaH=%f, epsilonH=%f, r0=%f, theta=%f\n" % (qH, sigma, epsilon, sigmaH, epsilonH, r0, theta))
     f_bond, f_angle, f_nonbonded = find_forces(system)
     
     set_constraints(system, r0, theta)
-    set_nonbonded(f_nonbonded, qH, sigma, epsilon)
+    set_nonbonded(f_nonbonded, qH, sigma, epsilon, sigmaH, epsilonH)
 
 
-def build(system, positions, mmtop, temperature, pressure, qH, sigma, epsilon, r0, theta, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None):
+def build(system, positions, mmtop, temperature, pressure, qH, sigma, epsilon, sigmaH, epsilonH, r0, theta, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
     
-    set_parms(system, qH, sigma, epsilon, r0, theta)
+    set_parms(system, qH, sigma, epsilon, sigmaH, epsilonH, r0, theta)
 
     friction = 1.0 / u.picoseconds
     timestep = 3.0 * u.femtoseconds
