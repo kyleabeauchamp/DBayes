@@ -1,0 +1,12 @@
+# Simplest possible ForceBalance input file with two targets.
+
+$options
+forcefield tip3pk.xml
+jobtype newton
+$end
+
+
+$target
+type Liquid_OpenMM
+name dms-liquid
+$end
