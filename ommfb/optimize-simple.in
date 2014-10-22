@@ -8,5 +8,5 @@ $end
 
 $target
 type Liquid_OpenMM
-name dms-liquid
+name wat-liquid
 $end
