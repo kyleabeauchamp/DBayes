@@ -8,5 +8,6 @@ $end
 
 $target
 type Liquid_OpenMM
+liquid_md_steps 25000
 name wat-liquid
 $end
