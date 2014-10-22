@@ -1,0 +1,23 @@
+# This is documentation for the ForceBalance condensed phase reference data file,,,,,,
+"# Lines beginning with octothorpe are comments, empty lines are ignored",,,,,,
+"# A line can either be a comment, a global parameter, a single line with column headings, or a data line (after the column heading line)",,,,,,
+# This file should be saved as .xlsx (to preserve formatting) but exported to .csv for ForceBalance to use.,,,,,,
+,,,,,,
+"# Global parameters are defined here; they have ""Global"" in the first column.",,,,,,
+# rho_denom : least squares denominator for the density objective function,,,,,,
+"# Note: w_rho, w_hvap etc. is set in the input file.  This is because it's considered an adjustable option rather than a property of the data set.",,,,,,
+# The overall prefactor for an observable is w_obs / obs_denom^2 ,,,,,,
+,,,,,,
+Global,rho_denom,10,,,,
+,,,,,,
+"# Before entering the data, there must be one line with column headings.",,,,,,
+# Allowed column headings are: (not case sensitive),,,,,,
+# T : Temperature in Kelvin,,,,,,
+"# P : Pressure in specified unit (append atm or bar), default is atm",,,,,,
+# Rho : Density in kg m^-3,,,,,,
+
+,,,,,,
+T,P,Rho,Hvap
+285.15,1.0 atm,999.497
+301.15,1.0 atm,996.234
+313.15,1.0 atm,992.216
