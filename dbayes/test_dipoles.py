@@ -9,13 +9,11 @@ import mdtraj as md
 
 
 dipole = dipoles.Dipole(1000, q0=0.5)
-system = dipole.build_system()
-traj, mmtop = dipole.build_box()
 
 temperature = 300 * u.kelvin
 pressure = 1.0 * u.atmospheres
 
-#values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure)
+values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure)
 
 
 nonbondedCutoff=1.1 * u.nanometer
@@ -28,17 +26,18 @@ import sys
 positions = traj.openmm_positions(0)
 
 friction = 100.0 / u.picoseconds
-timestep = 0.01 * u.femtoseconds
+timestep = 0.1 * u.femtoseconds
 barostat_frequency = 25
 
 path = tempfile.mkdtemp()
 csv_filename = os.path.join(path, "density.csv")
 
 integrator = mm.LangevinIntegrator(temperature, friction, timestep)
-system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
+#system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
 simulation = app.Simulation(mmtop, system, integrator)
 
+simulation.reporters.append(app.PDBReporter("out.pdb", 1))
 simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True))
 simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
 simulation.context.setPositions(positions)
@@ -50,3 +49,6 @@ print("done minimizing")
 simulation.context.getState(getPositions=True).getPositions()[0:10]
 simulation.step(5)
 simulation.context.getState(getPositions=True).getPositions()[0:10]
+simulation.step(1)
+simulation.context.getState(getPositions=True).getPositions()[0:10]
+simulation.step(100)

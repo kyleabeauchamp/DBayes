@@ -41,8 +41,14 @@ class Dipole(object):
     @property
     def n_atoms(self):
         return self.n_dipoles * 2
+        
+    def build_system(self, mmtop):
+        ff = app.ForceField("./dipole.xml")
+        system = ff.createSystem(mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
+        return system
+        
 
-    def build_system(self):
+    def build_system_old(self):
         system = mm.System()
         nonbonded = mm.NonbondedForce()
         nonbonded.setNonbondedMethod(mm.NonbondedForce.PME)        
@@ -124,8 +130,9 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
     
-    system = dipole.build_system()
+    
     traj, mmtop = dipole.build_box()
+    system = dipole.build_system(mmtop)
     positions = traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
