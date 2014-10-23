@@ -64,7 +64,7 @@ class Dipole(object):
         bonds = []
         for i in range(self.n_dipoles):
             j = 2 * i
-            top.append(dict(serial=(j + 1), name="O", element="O", resSeq=(i+1), resName="HOH", chainID=(i+1)))
+            top.append(dict(serial=(j + 1), name="F", element="F", resSeq=(i+1), resName="HOH", chainID=(i+1)))
             top.append(dict(serial=(j + 2), name="H", element="H", resSeq=(i+1), resName="HOH", chainID=(i+1)))
             bonds.append([j + 0, j + 1])
 
