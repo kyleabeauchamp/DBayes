@@ -73,7 +73,7 @@ class Dipole(object):
         top = md.Topology.from_dataframe(top, bonds)
         
         atoms_per_dim = int(np.ceil(self.n_dipoles ** (1 / 3.)))
-        spacing = self.r0 + (self.sigma0 + self.sigma1) * 0.5
+        spacing = self.r0 + (self.sigma0 + self.sigma1)
         
         centroids = build_box(atoms_per_dim, spacing)
         xyz = np.zeros((1, self.n_atoms, 3))
