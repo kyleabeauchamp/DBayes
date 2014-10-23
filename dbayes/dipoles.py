@@ -85,7 +85,7 @@ class Dipole(object):
             xyz[0, b] = centroids[0, i]
             xyz[0, b, 2] += self.r0
             
-        box_length = (atoms_per_dim + 2) * spacing
+        box_length = xyz.max() + spacing
 
         lengths = box_length * np.ones((1, 3))
         
