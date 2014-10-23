@@ -99,7 +99,7 @@ class Dipole(object):
             f_nonbonded.setParticleParameters(k, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
             f_nonbonded.setParticleParameters(k, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
-    def set_parmameters(self, system):
+    def set_parameters(self, system):
         self.set_constraints(system)
         self.set_nonbonded(system)
 
