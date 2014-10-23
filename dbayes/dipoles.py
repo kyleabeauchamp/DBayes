@@ -133,7 +133,7 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
 
     simulation = app.Simulation(mmtop, system, integrator)
 
-    simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True))
+    simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, energies=True))
     simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
     simulation.context.setPositions(positions)
 
