@@ -122,7 +122,7 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     positions = traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
-    timestep = 3.0 * u.femtoseconds
+    timestep = 2.0 * u.femtoseconds
     barostat_frequency = 25
 
     path = tempfile.mkdtemp()
