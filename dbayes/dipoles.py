@@ -1,5 +1,4 @@
 import os
-import tempfile
 import sys
 import pymbar
 import numpy as np
@@ -132,11 +131,11 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     positions = traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
-    timestep = 2.0 * u.femtoseconds
+    timestep = 1.0 * u.femtoseconds
     barostat_frequency = 25
 
-    path = tempfile.mkdtemp()
-    csv_filename = os.path.join(path, "density.csv")
+    dcd_filename = "./trajectories/%s_%f.dcd" % (str(dipole), temperature / u.kelvin)
+    csv_filename = "./densities/%s_%f.csv" % (str(dipole), temperature / u.kelvin)
 
     integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
@@ -156,6 +155,7 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     simulation.context.getIntegrator().setStepSize(timestep / 5.)
     simulation.step(250)
 
+    simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
     simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
 
