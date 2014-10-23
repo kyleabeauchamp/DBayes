@@ -139,11 +139,8 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
-integrator = mm.LangevinIntegrator(temperature, friction, timestep)
-system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
-
-simulation = app.Simulation(mmtop, system, integrator)
-simulation.context.setPositions(positions)
+    simulation = app.Simulation(mmtop, system, integrator)
+    simulation.context.setPositions(positions)
 
     print("minimizing")
     simulation.minimizeEnergy()
