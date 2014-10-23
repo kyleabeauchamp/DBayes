@@ -38,7 +38,10 @@ class Dipole(object):
         self.r0 = r0
         
         self.mass = mass
-        
+
+    def __repr__(self):
+        return "q0=%f, sigma0=%f, sigma1=%f, epsilon0=%f, epsilon1=%f, r0=%f" % (self.q0, self.sigma0, self.sigma1, self.epsilon0, self.epsilon1, self.r0)
+
     @property
     def q1(self):
         return -1.0 * self.q0
