@@ -52,8 +52,9 @@ class Dipole(object):
             b = system.addParticle(self.mass)
             system.addConstraint(a, b, self.r0 * u.nanometers)
             
-            nonbonded.addParticle(self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
-            nonbonded.addParticle(self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            a = nonbonded.addParticle(self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
+            b = nonbonded.addParticle(self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            nonbonded.addException(a, b, 0.0 * self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, 0.0 * self.epsilon1 * u.kilojoule_per_mole)
 
         system.addForce(nonbonded)
 
