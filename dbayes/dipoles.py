@@ -12,12 +12,17 @@ import mdtraj as md
 def build_box(atoms_per_dim, spacing):
     x_grid = np.arange(0, atoms_per_dim) * spacing
     xyz = []
+    #signs = []
+    #current_sign = 1.0
     for i in range(atoms_per_dim):
         for j in range(atoms_per_dim):
             for k in range(atoms_per_dim):
                 xyz.append(x_grid[[i, j, k]])
+                #signs.append(current_sign)
+                #current_sign *= -1.
     
     xyz = np.array([xyz])
+    #signs = np.array(signs)
     return xyz
 
 
@@ -61,7 +66,7 @@ class Dipole(object):
         top = md.Topology.from_dataframe(top, bonds)
         
         atoms_per_dim = int(np.ceil(self.n_dipoles ** (1 / 3.)))
-        spacing = self.r0 + (self.sigma0 + self.sigma1)
+        spacing = self.r0 + (self.sigma0 + self.sigma1) * 0.5 * 2 ** (1 / 6.)
         
         centroids = build_box(atoms_per_dim, spacing)
         xyz = np.zeros((1, self.n_atoms, 3))
@@ -70,7 +75,10 @@ class Dipole(object):
             a, b = 2 * i, 2 * i + 1
             xyz[0, a] = centroids[0, i]
             xyz[0, b] = centroids[0, i]
-            xyz[0, b, 2] += self.r0
+            
+            ind = np.random.random_integers(0, 2)
+            sgn = np.random.random_integers(0, 1) * 2 - 1
+            xyz[0, b, ind] += self.r0 * sgn
             
         box_length = xyz.max() + spacing
 

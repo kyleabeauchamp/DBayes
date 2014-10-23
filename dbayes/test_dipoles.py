@@ -18,10 +18,32 @@ values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure, prin
 
 traj, mmtop = dipole.build_box()
 system = dipole.build_system(mmtop)
-system.getConstraintParameters(0)
-system.getForce(1).getParticleParameters(0)
-system.getForce(1).getParticleParameters(1)
 dipole.set_parameters(system)
-system.getConstraintParameters(0)
-system.getForce(1).getParticleParameters(0)
-system.getForce(1).getParticleParameters(1)
+
+positions = traj.openmm_positions(0)
+
+friction = 1.0 / u.picoseconds
+timestep = 0.1 * u.femtoseconds
+barostat_frequency = 25
+
+import tempfile, os, sys
+print_frequency = 50
+output_frequency = 50
+path = tempfile.mkdtemp()
+csv_filename = os.path.join(path, "density.csv")
+
+integrator = mm.LangevinIntegrator(temperature, friction, timestep)
+system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
+
+simulation = app.Simulation(mmtop, system, integrator)
+
+simulation.reporters.append(app.DCDReporter("out.dcd", output_frequency))
+simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
+simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
+simulation.context.setPositions(positions)
+
+print("minimizing")
+simulation.minimizeEnergy()
+simulation.context.setVelocitiesToTemperature(temperature)
+print("done minimizing")
+simulation.step(15000)
