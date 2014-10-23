@@ -114,7 +114,7 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     
     traj, mmtop = dipole.build_box()
     system = dipole.build_system(mmtop)
-    self.set_parameters(system)
+    dipole.set_parameters(system)
     
     positions = traj.openmm_positions(0)
 
