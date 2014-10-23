@@ -99,7 +99,6 @@ class Dipole(object):
             system.setConstraintParameters(i, a0, a1, self.r0 * u.nanometers)
 
     def set_nonbonded(self, system):
-        #f_nonbonded = _find_nonbonded_force(system)
         for force in system.getForces():
             if type(force) == mm.NonbondedForce:
                 f_nonbonded = force        
