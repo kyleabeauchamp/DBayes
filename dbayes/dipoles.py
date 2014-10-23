@@ -118,7 +118,7 @@ class Dipole(object):
 
 
 
-def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None):
+def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
@@ -131,7 +131,6 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     positions = traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
-    timestep = 1.0 * u.femtoseconds
     barostat_frequency = 25
 
     dcd_filename = "./trajectories/%s_%f.dcd" % (str(dipole), temperature / u.kelvin)
@@ -148,12 +147,16 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
 
+    simulation.context.getIntegrator().setStepSize(timestep / 30.)
+    simulation.step(400)
     simulation.context.getIntegrator().setStepSize(timestep / 20.)
-    simulation.step(250)
+    simulation.step(400)
     simulation.context.getIntegrator().setStepSize(timestep / 10.)
-    simulation.step(250)
+    simulation.step(400)
     simulation.context.getIntegrator().setStepSize(timestep / 5.)
-    simulation.step(250)
+    simulation.step(400)
+    simulation.context.getIntegrator().setStepSize(timestep / 2.)
+    simulation.step(400)    
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
