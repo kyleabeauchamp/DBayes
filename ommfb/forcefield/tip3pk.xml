@@ -26,7 +26,7 @@
   <!--Atom type="tip3p-fb-O" charge="-0.84847" sigma="0.317796456355" epsilon="0.653" parameterize="charge,sigma,epsilon"/-->
   <Atom type="tip3p-fb-O" charge="-0.84847" sigma="0.3178" epsilon="0.653" parameterize="sigma"/>
   <!--Atom type="tip3p-fb-H" charge="0.4242243450515" sigma="0.1" epsilon="0.6" parameterize="sigma,epsilon" parameter_eval="charge=-0.5*PARM['Atom/charge/tip3p-fb-O']"/-->
-  <Atom type="tip3p-fb-H" charge="0.4242243450515" sigma="0.099815" epsilon="0.6" parameterize="sigma"/>
+  <Atom type="tip3p-fb-H" charge="0.4242243450515" sigma="0.099615" epsilon="0.6" parameterize="sigma"/>
  </NonbondedForce>
 </ForceField>
 

@@ -1,5 +1,3 @@
-# Simplest possible ForceBalance input file with two targets.
-
 $options
 forcefield tip3pk.xml
 jobtype newton
@@ -8,6 +6,7 @@ $end
 
 $target
 type Liquid_OpenMM
-liquid_md_steps 15000
+liquid_md_steps 100000
 name wat-liquid
 $end
+
