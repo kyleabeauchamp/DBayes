@@ -1,6 +1,5 @@
 import pymbar
 import dipoles
-import pymc
 import numpy as np
 import pandas as pd
 import simtk.openmm.app as app
@@ -9,7 +8,7 @@ import simtk.unit as u
 import mdtraj as md
 
 
-dipole = dipoles.Dipole(1000)
+dipole = dipoles.Dipole(1000, q0=0.5)
 system = dipole.build_system()
 traj, ommtop = dipole.build_box()
 
