@@ -99,8 +99,8 @@ class Dipole(object):
         for i in range(self.n_dipoles):
             a, b = 2 * i, 2 * i + 1
             
-            f_nonbonded.setParticleParameters(k, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
-            f_nonbonded.setParticleParameters(k, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(i, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(i, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
     def set_parameters(self, system):
         self.set_constraints(system)
