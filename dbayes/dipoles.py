@@ -22,7 +22,7 @@ def build_box(atoms_per_dim, spacing):
 
 
 class Dipole(object):
-    def __init__(self, n_dipoles, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2, mass=1.0):
+    def __init__(self, n_dipoles, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2, mass=16.0):
         self.n_dipoles = n_dipoles
 
         self.q0 = q0
