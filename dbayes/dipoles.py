@@ -133,8 +133,8 @@ def simulate_density(dipole, temperature, pressure, out_dir, stderr_tolerance=0.
     friction = 1.0 / u.picoseconds
     barostat_frequency = 25
     
-    dcd_filename = os.path.join(out_dir, "/%s_%f.dcd" % (str(dipole), temperature / u.kelvin))
-    csv_filename = os.path.join(out_dir, "/%s_%f.csv" % (str(dipole), temperature / u.kelvin))
+    dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(dipole), temperature / u.kelvin))
+    csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(dipole), temperature / u.kelvin))
 
     #integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     langevin_tolerance = 0.001
