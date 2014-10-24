@@ -29,7 +29,7 @@ data = []
 
 for k in range(10000):
     model.draw_from_prior()
-    for q0 in linspace(0, 1, 5):
+    for q0 in np.linspace(0, 1, 5):
         dipole = dipoles.Dipole(1000, q0=q0, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
         print(dipole)
         try:
