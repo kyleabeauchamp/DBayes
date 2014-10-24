@@ -136,7 +136,9 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     dcd_filename = "./data/%s_%f.dcd" % (str(dipole), temperature / u.kelvin)
     csv_filename = "./data/%s_%f.csv" % (str(dipole), temperature / u.kelvin)
 
-    integrator = mm.LangevinIntegrator(temperature, friction, timestep)
+    #integrator = mm.LangevinIntegrator(temperature, friction, timestep)
+    langevin_tolerance = 0.001
+    integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
     simulation = app.Simulation(mmtop, system, integrator)
@@ -147,18 +149,19 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
 
-    simulation.context.getIntegrator().setStepSize(timestep / 30.)
-    simulation.step(500)
-    simulation.context.getIntegrator().setStepSize(timestep / 20.)
-    simulation.step(500)
-    simulation.context.getIntegrator().setStepSize(timestep / 10.)
-    simulation.step(500)
-    simulation.context.getIntegrator().setStepSize(timestep / 5.)
-    simulation.step(500)
-    simulation.context.getIntegrator().setStepSize(timestep / 2.)
-    simulation.step(500)
-    simulation.context.getIntegrator().setStepSize(timestep)
-    simulation.step(500)
+    if False:
+        simulation.context.getIntegrator().setStepSize(timestep / 30.)
+        simulation.step(500)
+        simulation.context.getIntegrator().setStepSize(timestep / 20.)
+        simulation.step(500)
+        simulation.context.getIntegrator().setStepSize(timestep / 10.)
+        simulation.step(500)
+        simulation.context.getIntegrator().setStepSize(timestep / 5.)
+        simulation.step(500)
+        simulation.context.getIntegrator().setStepSize(timestep / 2.)
+        simulation.step(500)
+        simulation.context.getIntegrator().setStepSize(timestep)
+        simulation.step(500)
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
