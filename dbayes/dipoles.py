@@ -139,7 +139,7 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(dipole), temperature / u.kelvin))
 
     #integrator = mm.LangevinIntegrator(temperature, friction, timestep)
-    langevin_tolerance = 0.001
+    langevin_tolerance = 0.0005
     integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
