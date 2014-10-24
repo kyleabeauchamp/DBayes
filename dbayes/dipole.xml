@@ -1,10 +1,10 @@
 <ForceField>
  <AtomTypes>
-  <Type name="H" class="H" element="H" mass="1.0"/>
-  <Type name="F" class="F" element="F" mass="15.0"/>
+  <Type name="H" class="H" element="H" mass="0.5"/>
+  <Type name="F" class="F" element="F" mass="0.5"/>
  </AtomTypes>
  <Residues>
-  <Residue name="HF">
+  <Residue name="HF0">
    <Atom name="H" type="H"/>
    <Atom name="F" type="F"/>
    <Bond from="0" to="1"/>

@@ -118,13 +118,15 @@ class Dipole(object):
 
 
 
-def simulate_density(dipole, temperature, pressure, out_dir, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
+def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
     
     
-    traj, mmtop = dipole.build_box()
+    #traj, mmtop = dipole.build_box()
+    mmtop = traj.top.to_openmm(traj=traj)
+     
     system = dipole.build_system(mmtop)
     dipole.set_parameters(system)
     
