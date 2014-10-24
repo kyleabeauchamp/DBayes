@@ -17,7 +17,7 @@ epsilon0 = pymc.Uniform("epsilon0", 0.2, 2.0)
 #epsilon1 = pymc.Uniform("epsilon0", 0.2, 2.0)
 sigma1 = 1.0 * sigma0
 epsilon1 = 1.0 * epsilon0
-r0 = pymc.Uniform("r0", 0.05, 0.25, value=0.1, observed=True)
+r0 = pymc.Uniform("r0", 0.05, 0.25, value=0.2, observed=True)
 
 model = pymc.Model([q0, sigma0, epsilon0, sigma1, epsilon1, r0])
 
