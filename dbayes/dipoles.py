@@ -118,7 +118,7 @@ class Dipole(object):
 
 
 
-def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
+def simulate_density(dipole, temperature, pressure, out_dir, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
@@ -132,9 +132,9 @@ def simulate_density(dipole, temperature, pressure, stderr_tolerance=0.05, n_ste
 
     friction = 1.0 / u.picoseconds
     barostat_frequency = 25
-
-    dcd_filename = "./data/%s_%f.dcd" % (str(dipole), temperature / u.kelvin)
-    csv_filename = "./data/%s_%f.csv" % (str(dipole), temperature / u.kelvin)
+    
+    dcd_filename = os.path.join(out_dir, "/%s_%f.dcd" % (str(dipole), temperature / u.kelvin))
+    csv_filename = os.path.join(out_dir, "/%s_%f.csv" % (str(dipole), temperature / u.kelvin))
 
     #integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     langevin_tolerance = 0.001
