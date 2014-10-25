@@ -159,7 +159,7 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
     while not converged:
         simulation.step(n_steps)
         d = pd.read_csv(csv_filename, skiprows=1, names=["energy", "density"])
-        density_ts = np.array(d.Density)
+        density_ts = np.array(d.density)
         [t0, g, Neff] = pymbar.timeseries.detectEquilibration(density_ts)
         density_ts = density_ts[t0:]
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)
