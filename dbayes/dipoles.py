@@ -166,5 +166,5 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
         if density_mean_stderr < stderr_tolerance:
             converged = True
     print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
-    return d.Density.values, density_ts.mean(), density_mean_stderr
+    return d.density.values, density_ts.mean(), density_mean_stderr
 
