@@ -10,7 +10,7 @@ import mdtraj as md
 
 
 traj = md.load("./dipoles.pdb")
-out_dir = "./symmetric/"
+out_dir = "./symmetric_energies/"
 q0 = pymc.Uniform("q0", 0.0, 1.0)
 sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
 epsilon0 = pymc.Uniform("epsilon0", 0.2, 2.0)

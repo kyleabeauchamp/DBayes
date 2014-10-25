@@ -167,7 +167,7 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
-    simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True))
+    simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True, potentialEnergy=True))
 
     converged = False
     while not converged:
