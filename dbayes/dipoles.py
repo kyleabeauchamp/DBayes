@@ -118,7 +118,7 @@ class Dipole(object):
 
 
 
-def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolerance=0.05, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
+def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
@@ -151,20 +151,6 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
 
-    if False:
-        simulation.context.getIntegrator().setStepSize(timestep / 30.)
-        simulation.step(500)
-        simulation.context.getIntegrator().setStepSize(timestep / 20.)
-        simulation.step(500)
-        simulation.context.getIntegrator().setStepSize(timestep / 10.)
-        simulation.step(500)
-        simulation.context.getIntegrator().setStepSize(timestep / 5.)
-        simulation.step(500)
-        simulation.context.getIntegrator().setStepSize(timestep / 2.)
-        simulation.step(500)
-        simulation.context.getIntegrator().setStepSize(timestep)
-        simulation.step(500)
-
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
     simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, density=True, potentialEnergy=True))
@@ -172,9 +158,9 @@ def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolera
     converged = False
     while not converged:
         simulation.step(n_steps)
-        d = pd.read_csv(csv_filename, names=["Density"], skiprows=1)
+        d = pd.read_csv(csv_filename, skiprows=1, names=["energy", "density"])
         density_ts = np.array(d.Density)
-        [t0, g, Neff] = pymbar.timeseries.detectEquilibration_fft(density_ts)
+        [t0, g, Neff] = pymbar.timeseries.detectEquilibration(density_ts)
         density_ts = density_ts[t0:]
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)
         if density_mean_stderr < stderr_tolerance:
