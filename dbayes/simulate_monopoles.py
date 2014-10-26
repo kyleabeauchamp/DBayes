@@ -24,7 +24,8 @@ epsilon1 = pymc.Uniform("epsilon1", 0.0, 2.0)
 
 model = pymc.Model([q0, sigma0, epsilon0, sigma1, epsilon1])
 
-temperatures = [280 * u.kelvin, 290 * u.kelvin, 300 * u.kelvin, 310 * u.kelvin, 320 * u.kelvin]
+#temperatures = [280 * u.kelvin, 290 * u.kelvin, 300 * u.kelvin, 310 * u.kelvin, 320 * u.kelvin]
+temperatures = [280 * u.kelvin, 300 * u.kelvin, 320 * u.kelvin]
 pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()

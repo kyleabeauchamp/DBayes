@@ -8,7 +8,7 @@ import glob
 
 keys = ["q0", "sigma0"]
 
-filenames = glob.glob("/home/kyleb/dat/monopoles/*.csv")
+filenames = glob.glob("/home/kyleb/dat/simple_dipoles/*.csv")
 data = []
 for filename in filenames:
     x = pd.read_csv(filename, skiprows=1, names=["energy", "density"])
@@ -38,7 +38,7 @@ dE0 = dE0.reset_index()
 dE0.dropna(inplace=True)
 
 
-temperature = 300.
+temperature = 280.
 ind = data.temperature == temperature
 mydata = data[ind]
 
