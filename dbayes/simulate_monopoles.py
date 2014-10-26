@@ -13,7 +13,7 @@ import mdtraj as md
 traj = md.load("./monopole.pdb")
 out_dir = os.path.join(os.getenv("HOME"), "dat", "monopoles")
 
-q0 = pymc.Uniform("q0", 0.0, 1.0, value=0.25, observed=True)
+q0 = pymc.Uniform("q0", 0.0, 1.0, value=1.0, observed=True)
 
 sigma0 = pymc.Uniform("sigma0", 0.1, 0.6)
 sigma1 = pymc.Uniform("sigma1", 0.1, 0.6)
