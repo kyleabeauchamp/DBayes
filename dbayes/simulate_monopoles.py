@@ -14,10 +14,12 @@ traj = md.load("./monopole.pdb")
 out_dir = os.path.join(os.getenv("HOME"), "dat", "monopoles")
 
 q0 = pymc.Uniform("q0", 0.0, 1.0, value=1.0, observed=True)
-sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
-epsilon0 = pymc.Uniform("epsilon0", 0.2, 2.0)
-sigma1 = pymc.Uniform("sigma1", 0.08, 0.4)
-epsilon1 = pymc.Uniform("epsilon1", 0.2, 2.0)
+
+sigma0 = pymc.Uniform("sigma0", 0.1, 0.6)
+sigma1 = pymc.Uniform("sigma1", 0.1, 0.6)
+
+epsilon0 = pymc.Uniform("epsilon0", 0.0, 2.0)
+epsilon1 = pymc.Uniform("epsilon1", 0.0, 2.0)
 
 
 model = pymc.Model([q0, sigma0, epsilon0, sigma1, epsilon1])
@@ -27,7 +29,7 @@ pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()
 for temperature in temperatures:
-    monopole = dipoles.Monopole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value)
+    monopole = dipoles.Monopole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, langevin_tolerance=0.0001)
     traj = monopole.build_box()
     print(monopole)
     try:
