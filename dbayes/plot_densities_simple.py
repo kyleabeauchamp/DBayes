@@ -39,20 +39,21 @@ for temperature in data.temperature.unique():
     X = data[ind][keys].values
     y = data[ind]["density"].values
     model = sklearn.gaussian_process.GaussianProcess(theta0=1.0)
-    #model.fit(X, y)
-    #models[temperature] = model
-    interp = scipy.interpolate.interp2d(X[:, 0], X[:, 1], y, bounds_error=True)
-    models[temperature] = interp
+    model.fit(X, y)
+    models[temperature] = model
+    #interp = scipy.interpolate.interp2d(X[:, 0], X[:, 1], y, bounds_error=True)
+    #models[temperature] = interp
 
-#predict = lambda q0, sigma0, temperature: np.array(models[temperature].predict([q0, sigma0], eval_MSE=True))[:, 0]
-predict = lambda q0, sigma0, temperature: np.array(models[temperature](q0, sigma0))
+predict = lambda q0, sigma0, temperature: np.array(models[temperature].predict([q0, sigma0], eval_MSE=True))[:, 0]
+#predict = lambda q0, sigma0, temperature: np.array(models[temperature](q0, sigma0))
 predict(sigma0=0.2, q0=0.5, temperature=320)
 
 q0 = pymc.Uniform("q0", 0.0, 1.0)
 sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
 
 
-temperatures = [280, 300, 320]
+#temperatures = [280, 300, 320]
+temperatures = [280]
 @pymc.deterministic
 def predictions(q0=q0, sigma0=sigma0):
     try:
@@ -61,7 +62,8 @@ def predictions(q0=q0, sigma0=sigma0):
         return [100.] * len(temperatures)
 
 
-values = np.array([0.007709, 0.007423, 0.007158])
+#values = np.array([0.007709, 0.007423, 0.007158])
+values = np.array([0.007709])
 relative_error = 0.005
 density_error = values * relative_error
 

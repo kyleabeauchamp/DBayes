@@ -46,4 +46,4 @@ figure()
 sns.interactplot("q0", "sigma0", "density", mydata, cmap="coolwarm", filled=True, levels=25);
 
 figure()
-sns.interactplot("q0", "sigma0", "dE0", dE0, cmap="coolwarm", filled=True, levels=25);
+sns.interactplot("q0", "sigma0", "dE0", dE0, cmap="coolwarm", filled=True)
