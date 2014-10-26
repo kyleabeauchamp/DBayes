@@ -214,7 +214,7 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
-    integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance)
+    integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance / 10.)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
     simulation = app.Simulation(mmtop, system, integrator)
@@ -224,6 +224,8 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     simulation.minimizeEnergy()
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
+    simulation.step(2000)
+    integrator.setErrorTolerance(langevin_tolerance)
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
