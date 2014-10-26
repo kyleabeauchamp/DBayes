@@ -18,10 +18,35 @@ def build_box(atoms_per_dim, spacing):
     xyz = np.array([xyz])
     return xyz
 
+class Molecule(object):
 
-class Dipole(object):
-    def __init__(self, n_dipoles, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2, mass=16.0):
-        self.n_dipoles = n_dipoles
+    @property
+    def mmtop(self):
+        return self.traj.top.to_openmm(traj=self.traj)
+
+    @property
+    def traj(self):
+        return self._traj
+
+    @traj.setter
+    def traj(self, value):
+        self._traj = value
+    
+    def build_system(self):
+        ff = app.ForceField("./%s.xml" % self.name)
+        system = ff.createSystem(self.mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
+        return system
+
+    def set_parameters(self, system):
+        self.set_constraints(system)
+        self.set_nonbonded(system)
+
+    def set_constraints(self, system):
+        pass
+
+class Dipole(Molecule):
+    def __init__(self, n_molecules, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2):
+        self.n_molecules = n_molecules
 
         self.q0 = q0
         self.sigma0 = sigma0
@@ -30,7 +55,7 @@ class Dipole(object):
         self.epsilon1 = epsilon1
         self.r0 = r0
         
-        self.mass = mass
+        self.name = "dipole"
 
     def __repr__(self):
         return "q0=%f, sigma0=%f, sigma1=%f, epsilon0=%f, epsilon1=%f, r0=%f" % (self.q0, self.sigma0, self.sigma1, self.epsilon0, self.epsilon1, self.r0)
@@ -41,17 +66,12 @@ class Dipole(object):
 
     @property
     def n_atoms(self):
-        return self.n_dipoles * 2
-        
-    def build_system(self, mmtop):
-        ff = app.ForceField("./dipole.xml")
-        system = ff.createSystem(mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
-        return system
+        return self.n_molecules * 2
 
     def build_box(self):
         top = []
         bonds = []
-        for i in range(self.n_dipoles):
+        for i in range(self.n_molecules):
             j = 2 * i
             top.append(dict(serial=(j + 1), name="F", element="F", resSeq=(i+1), resName="HOH", chainID=(i+1)))
             top.append(dict(serial=(j + 2), name="H", element="H", resSeq=(i+1), resName="HOH", chainID=(i+1)))
@@ -61,13 +81,13 @@ class Dipole(object):
         bonds = np.array(bonds, dtype='int')
         top = md.Topology.from_dataframe(top, bonds)
         
-        atoms_per_dim = int(np.ceil(self.n_dipoles ** (1 / 3.)))
+        atoms_per_dim = int(np.ceil(self.n_molecules ** (1 / 3.)))
         spacing = self.r0 + (self.sigma0 + self.sigma1) * 0.5 * 2 ** (1 / 6.)
         
         centroids = build_box(atoms_per_dim, spacing)
         xyz = np.zeros((1, self.n_atoms, 3))
         
-        for i in range(self.n_dipoles):
+        for i in range(self.n_molecules):
             a, b = 2 * i, 2 * i + 1
             xyz[0, a] = centroids[0, i]
             xyz[0, b] = centroids[0, i]
@@ -82,14 +102,13 @@ class Dipole(object):
         
         angles = 90.0 * np.ones((1, 3))
         traj = md.Trajectory(xyz, top, unitcell_lengths=lengths, unitcell_angles=angles)
+        self.traj = traj
         
-        mmtop = traj.top.to_openmm(traj=traj)
-        
-        return traj, mmtop
+        return traj
 
         
     def set_constraints(self, system):
-        for i in range(self.n_dipoles):
+        for i in range(self.n_molecules):
             a0, a1 = i * 2, i * 2 + 1
             system.setConstraintParameters(i, a0, a1, self.r0 * u.nanometers)
 
@@ -98,32 +117,30 @@ class Dipole(object):
             if type(force) == mm.NonbondedForce:
                 f_nonbonded = force        
         
-        for i in range(self.n_dipoles):
+        for i in range(self.n_molecules):
             a, b = 2 * i, 2 * i + 1
             
             f_nonbonded.setParticleParameters(a, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
-    
-    def set_parameters(self, system):
-        self.set_constraints(system)
-        self.set_nonbonded(system)
 
 
-class Monopole(object):
-    def __init__(self, n_dipoles, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2, mass=16.0):
-        self.n_dipoles = n_dipoles
+class Monopole(Molecule):
+    def __init__(self, n_molecules, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, name0="Na", name1="Cl"):
+        self.n_molecules = n_molecules
 
         self.q0 = q0
         self.sigma0 = sigma0
         self.sigma1 = sigma1
         self.epsilon0 = epsilon0
         self.epsilon1 = epsilon1
-        self.r0 = r0
         
-        self.mass = mass
+        self.name0 = name0
+        self.name1 = name1
+        
+        self.name = "monopole"
 
     def __repr__(self):
-        return "q0=%f, sigma0=%f, sigma1=%f, epsilon0=%f, epsilon1=%f, r0=%f" % (self.q0, self.sigma0, self.sigma1, self.epsilon0, self.epsilon1, self.r0)
+        return "q0=%f, sigma0=%f, sigma1=%f, epsilon0=%f, epsilon1=%f" % (self.q0, self.sigma0, self.sigma1, self.epsilon0, self.epsilon1)
 
     @property
     def q1(self):
@@ -131,41 +148,30 @@ class Monopole(object):
 
     @property
     def n_atoms(self):
-        return self.n_dipoles * 2
-        
-    def build_system(self, mmtop):
-        ff = app.ForceField("./dipole.xml")
-        system = ff.createSystem(mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
-        return system
+        return self.n_molecules * 2
 
     def build_box(self):
         top = []
         bonds = []
-        for i in range(self.n_dipoles):
-            j = 2 * i
-            top.append(dict(serial=(j + 1), name="F", element="F", resSeq=(i+1), resName="HOH", chainID=(i+1)))
-            top.append(dict(serial=(j + 2), name="H", element="H", resSeq=(i+1), resName="HOH", chainID=(i+1)))
-            bonds.append([j + 0, j + 1])
+        for i in range(self.n_molecules):
+            a = 2 * i + 1  # One based indexing for PDB / top stuff
+            b = 2 * i + 2
+            top.append(dict(serial=a, name=self.name0, element=self.name0, resSeq=a, resName=self.name0, chainID=(1)))
+            top.append(dict(serial=b, name=self.name1, element=self.name1, resSeq=b, resName=self.name1, chainID=(1)))
 
         top = pd.DataFrame(top)
         bonds = np.array(bonds, dtype='int')
         top = md.Topology.from_dataframe(top, bonds)
         
-        atoms_per_dim = int(np.ceil(self.n_dipoles ** (1 / 3.)))
-        spacing = self.r0 + (self.sigma0 + self.sigma1) * 0.5 * 2 ** (1 / 6.)
+        atoms_per_dim = int(np.ceil(self.n_atoms ** (1 / 3.)))
+        spacing = (self.sigma0 + self.sigma1) * 0.5 * 2 ** (1 / 6.)
         
         centroids = build_box(atoms_per_dim, spacing)
         xyz = np.zeros((1, self.n_atoms, 3))
         
-        for i in range(self.n_dipoles):
-            a, b = 2 * i, 2 * i + 1
-            xyz[0, a] = centroids[0, i]
-            xyz[0, b] = centroids[0, i]
-            
-            ind = np.random.random_integers(0, 2)
-            sgn = np.random.random_integers(0, 1) * 2 - 1
-            xyz[0, b, ind] += self.r0 * sgn
-            
+        for i in range(self.n_atoms):
+            xyz[0, i] = centroids[0, i]
+
         box_length = xyz.max() + spacing
 
         lengths = box_length * np.ones((1, 3))
@@ -173,9 +179,9 @@ class Monopole(object):
         angles = 90.0 * np.ones((1, 3))
         traj = md.Trajectory(xyz, top, unitcell_lengths=lengths, unitcell_angles=angles)
         
-        mmtop = traj.top.to_openmm(traj=traj)
+        self.traj = traj
         
-        return traj, mmtop
+        return traj
 
 
     def set_nonbonded(self, system):
@@ -183,39 +189,31 @@ class Monopole(object):
             if type(force) == mm.NonbondedForce:
                 f_nonbonded = force        
         
-        for i in range(self.n_pairs):
+        for i in range(self.n_molecules):
             a, b = 2 * i, 2 * i + 1
 
             f_nonbonded.setParticleParameters(a, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
-    def set_parameters(self, system):
-        self.set_nonbonded(system)
 
-
-
-
-def simulate_density(dipole, traj, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, timestep=1.0*u.femtoseconds):
+def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None):
     
     if print_frequency is None:
         print_frequency = int(n_steps / 3.)
     
-    
-    #traj, mmtop = dipole.build_box()
-    mmtop = traj.top.to_openmm(traj=traj)
+    mmtop = molecule.mmtop
      
-    system = dipole.build_system(mmtop)
-    dipole.set_parameters(system)
+    system = molecule.build_system()
+    molecule.set_parameters(system)
     
-    positions = traj.openmm_positions(0)
+    positions = molecule.traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
     barostat_frequency = 25
     
-    dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(dipole), temperature / u.kelvin))
-    csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(dipole), temperature / u.kelvin))
+    dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
+    csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
-    #integrator = mm.LangevinIntegrator(temperature, friction, timestep)
     langevin_tolerance = 0.0005
     integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance)
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
