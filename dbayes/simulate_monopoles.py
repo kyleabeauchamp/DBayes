@@ -29,10 +29,10 @@ pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()
 for temperature in temperatures:
-    monopole = dipoles.Monopole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, langevin_tolerance=0.0001)
+    monopole = dipoles.Monopole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value)
     traj = monopole.build_box()
     print(monopole)
     try:
-        values, mu, sigma = dipoles.simulate_density(monopole, temperature, pressure, out_dir)
+        values, mu, sigma = dipoles.simulate_density(monopole, temperature, pressure, out_dir, langevin_tolerance=0.0001, print_frequency=100)
     except Exception as e:
         print(e)
