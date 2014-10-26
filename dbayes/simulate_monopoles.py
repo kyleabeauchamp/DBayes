@@ -33,6 +33,6 @@ for temperature in temperatures:
     traj = monopole.build_box()
     print(monopole)
     try:
-        values, mu, sigma = dipoles.simulate_density(monopole, temperature, pressure, out_dir, print_frequency=100)
+        values, mu, sigma = dipoles.simulate_density(monopole, temperature, pressure, out_dir)
     except Exception as e:
         print(e)

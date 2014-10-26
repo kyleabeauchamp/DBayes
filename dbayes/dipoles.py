@@ -326,10 +326,7 @@ class Monopole(Molecule):
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
 
-def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=None, langevin_tolerance=0.0005):
-    
-    if print_frequency is None:
-        print_frequency = int(n_steps / 3.)
+def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=250):
     
     mmtop = molecule.mmtop
      
@@ -344,7 +341,6 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
-    #integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance / 10.)
     integrator = GHMCIntegrator(temperature, friction, 1.0 * u.femtoseconds)
     
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
@@ -356,8 +352,6 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     simulation.minimizeEnergy()
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
-    #simulation.step(2000)
-    #integrator.setErrorTolerance(langevin_tolerance)
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
