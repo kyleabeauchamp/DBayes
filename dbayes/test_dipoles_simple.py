@@ -1,3 +1,4 @@
+import os
 import pymc
 import pymbar
 import dipoles
@@ -10,7 +11,7 @@ import mdtraj as md
 
 
 traj = md.load("./dipoles.pdb")
-out_dir = "./simple_0/"
+out_dir = os.path.join(os.getenv("HOME"), "dat", "simple")
 q0 = pymc.Uniform("q0", 0.0, 1.0)
 sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
 epsilon0 = pymc.Uniform("epsilon0", 0.2, 2.0, value=0.5, observed=True)
@@ -23,7 +24,7 @@ model = pymc.Model([q0, sigma0, epsilon0, sigma1, epsilon1, r0])
 temperatures = [280 * u.kelvin, 300 * u.kelvin, 320 * u.kelvin]
 pressure = 1.0 * u.atmospheres
 
-for k in range(10000):
+for k in range(2):
     model.draw_from_prior()
     for temperature in temperatures:
         dipole = dipoles.Dipole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
