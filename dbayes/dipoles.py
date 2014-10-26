@@ -7,6 +7,136 @@ import simtk.openmm.app as app
 import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
+import simtk.unit as units
+
+kB = u.BOLTZMANN_CONSTANT_kB * u.AVOGADRO_CONSTANT_NA
+
+def GHMCIntegrator(temperature=298.0*u.kelvin, collision_rate=91.0/u.picoseconds, timestep=1.0*u.femtoseconds):
+    """
+    Create a generalized hybrid Monte Carlo (GHMC) integrator.
+    
+    Parameters
+    ----------
+    temperature : np.unit.Quantity compatible with kelvin, default: 298*simtk.unit.kelvin
+        The temperature.
+    collision_rate : np.unit.Quantity compatible with 1/picoseconds, default: 91.0/simtk.unit.picoseconds
+        The collision rate.
+    timestep : np.unit.Quantity compatible with femtoseconds, default: 1.0*simtk.unit.femtoseconds
+        The integration timestep.
+    
+    Returns
+    -------
+    integrator : simtk.openmm.CustomIntegrator
+        A GHMC integrator.
+
+    Notes
+    -----
+    This integrator is equivalent to a Langevin integrator in the velocity Verlet discretization with a
+    Metrpolization step to ensure sampling from the appropriate distribution.
+
+    Additional global variables 'ntrials' and  'naccept' keep track of how many trials have been attempted and
+    accepted, respectively.
+
+    TODO
+    ----
+    Move initialization of 'sigma' to setting the per-particle variables.
+
+    Examples
+    --------
+
+    Create a GHMC integrator.
+
+    >>> temperature = 298.0 * simtk.unit.kelvin
+    >>> collision_rate = 91.0 / simtk.unit.picoseconds
+    >>> timestep = 1.0 * simtk.unit.femtoseconds
+    >>> integrator = GHMCIntegrator(temperature, collision_rate, timestep)
+
+    References
+    ----------
+    Lelievre T, Stoltz G, and Rousset M. Free Energy Computations: A Mathematical Perspective
+    http://www.amazon.com/Free-Energy-Computations-Mathematical-Perspective/dp/1848162472
+
+    """
+
+    # Initialize constants.
+    kT = kB * temperature
+    gamma = collision_rate
+
+    # Create a new custom integrator.
+    integrator = mm.CustomIntegrator(timestep)
+
+    #
+    # Integrator initialization.
+    #
+    integrator.addGlobalVariable("kT", kT) # thermal energy
+    integrator.addGlobalVariable("b", np.exp(-gamma*timestep)) # velocity mixing parameter
+    integrator.addPerDofVariable("sigma", 0) 
+    integrator.addGlobalVariable("ke", 0) # kinetic energy
+    integrator.addPerDofVariable("vold", 0) # old velocities
+    integrator.addPerDofVariable("xold", 0) # old positions
+    integrator.addGlobalVariable("Eold", 0) # old energy
+    integrator.addGlobalVariable("Enew", 0) # new energy
+    integrator.addGlobalVariable("accept", 0) # accept or reject
+    integrator.addGlobalVariable("naccept", 0) # number accepted
+    integrator.addGlobalVariable("ntrials", 0) # number of Metropolization trials
+    integrator.addPerDofVariable("x1", 0) # position before application of constraints
+    
+    #
+    # Pre-computation.
+    # This only needs to be done once, but it needs to be done for each degree of freedom.
+    # Could move this to initialization?
+    #
+    integrator.addComputePerDof("sigma", "sqrt(kT/m)")
+
+    #
+    # Allow context updating here.
+    #
+    integrator.addUpdateContextState();
+
+    #
+    # Constrain positions.
+    #
+    integrator.addConstrainPositions();
+
+    # 
+    # Velocity perturbation.
+    #
+    integrator.addComputePerDof("v", "sqrt(b)*v + sqrt(1-b)*sigma*gaussian")
+    integrator.addConstrainVelocities();
+    
+    #
+    # Metropolized symplectic step.
+    #
+    integrator.addComputeSum("ke", "0.5*m*v*v")
+    integrator.addComputeGlobal("Eold", "ke + energy")
+    integrator.addComputePerDof("xold", "x")
+    integrator.addComputePerDof("vold", "v")
+    integrator.addComputePerDof("v", "v + 0.5*dt*f/m")
+    integrator.addComputePerDof("x", "x + v*dt")
+    integrator.addComputePerDof("x1", "x")
+    integrator.addConstrainPositions();
+    integrator.addComputePerDof("v", "v + 0.5*dt*f/m + (x-x1)/dt")
+    integrator.addConstrainVelocities();
+    integrator.addComputeSum("ke", "0.5*m*v*v")
+    integrator.addComputeGlobal("Enew", "ke + energy")
+    integrator.addComputeGlobal("accept", "step(exp(-(Enew-Eold)/kT) - uniform)")
+    integrator.addComputePerDof("x", "x*accept + xold*(1-accept)")
+    integrator.addComputePerDof("v", "v*accept - vold*(1-accept)")
+
+    #
+    # Velocity randomization
+    #
+    integrator.addComputePerDof("v", "sqrt(b)*v + sqrt(1-b)*sigma*gaussian")
+    integrator.addConstrainVelocities();
+
+    #
+    # Accumulate statistics.
+    #
+    integrator.addComputeGlobal("naccept", "naccept + accept")
+    integrator.addComputeGlobal("ntrials", "ntrials + 1")   
+
+    return integrator
+
 
 def build_box(atoms_per_dim, spacing):
     x_grid = np.arange(0, atoms_per_dim) * spacing
@@ -214,7 +344,9 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
-    integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance / 10.)
+    #integrator = mm.VariableLangevinIntegrator(temperature, friction, langevin_tolerance / 10.)
+    integrator = GHMCIntegrator(temperature, friction, 1.0 * u.femtoseconds)
+    
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
     simulation = app.Simulation(mmtop, system, integrator)
@@ -224,8 +356,8 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     simulation.minimizeEnergy()
     simulation.context.setVelocitiesToTemperature(temperature)
     print("done minimizing")
-    simulation.step(2000)
-    integrator.setErrorTolerance(langevin_tolerance)
+    #simulation.step(2000)
+    #integrator.setErrorTolerance(langevin_tolerance)
 
     simulation.reporters.append(app.DCDReporter(dcd_filename, output_frequency))
     simulation.reporters.append(app.StateDataReporter(sys.stdout, print_frequency, step=True, density=True, potentialEnergy=True))
