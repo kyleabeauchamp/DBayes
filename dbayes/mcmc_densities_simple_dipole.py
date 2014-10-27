@@ -52,7 +52,8 @@ q0 = pymc.Uniform("q0", 0.0, 1.0)
 sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
 
 
-temperatures = [280, 300, 320]
+#temperatures = [280, 300, 320]
+temperatures = [280, 320]
 #temperatures = [300]
 @pymc.deterministic
 def predictions(q0=q0, sigma0=sigma0):
@@ -62,7 +63,8 @@ def predictions(q0=q0, sigma0=sigma0):
         return [100.] * len(temperatures)
 
 
-values = np.array([0.038294,  0.038510,  0.038706])
+#values = np.array([0.038294,  0.038510,  0.038706])
+values = np.array([0.038294,  0.038706])
 #values = np.array([0.052419])
 relative_error = 0.001
 density_error = values * relative_error
