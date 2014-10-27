@@ -10,7 +10,7 @@ import simtk.unit as u
 import mdtraj as md
 
 
-traj = md.load("./dipoles.pdb")
+traj = md.load("../dipoles.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles-symmetric")
 

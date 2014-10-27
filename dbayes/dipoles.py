@@ -163,7 +163,7 @@ class Molecule(object):
         self._traj = value
     
     def build_system(self):
-        ff = app.ForceField("./%s.xml" % self.name)
+        ff = app.ForceField("../%s.xml" % self.name)
         system = ff.createSystem(self.mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
         return system
 
