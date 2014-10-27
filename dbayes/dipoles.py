@@ -366,7 +366,7 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
         density_ts = density_ts[t0:]
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)
         print("Accept=%f" % (integrator.getGlobalVariable(6) / (1.0 * integrator.getGlobalVariable(7))))        
-        if density_mean_stderr < stderr_tolerance:
+        if density_mean_stderr < stderr_tolerance and Neff > 100.:
             converged = True
     print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
     return d.density.values, density_ts.mean(), density_mean_stderr

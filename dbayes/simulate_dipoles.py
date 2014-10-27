@@ -14,14 +14,14 @@ traj = md.load("./dipoles.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles")
 
-q0 = pymc.Uniform("q0", 0.0, 1.0)
+q0 = pymc.Uniform("q0", 0.1, 1.0)
 
-sigma0 = pymc.Uniform("sigma0", 0.08, 0.4)
-sigma1 = pymc.Uniform("sigma1", 0.08, 0.4)
+sigma0 = pymc.Uniform("sigma0", 0.1, 0.3)
+sigma1 = pymc.Uniform("sigma1", 0.1, 0.3)
 #sigma1 = 1.0 * sigma0
 
-epsilon0 = pymc.Uniform("epsilon0", 0.2, 2.0, value=0.5)
-epsilon1 = pymc.Uniform("epsilon1", 0.2, 2.0, value=0.5)
+epsilon0 = pymc.Uniform("epsilon0", 0.2, 1.0)
+epsilon1 = pymc.Uniform("epsilon1", 0.2, 1.0)
 #epsilon1 = 1.0 * epsilon0
 
 r0 = pymc.Uniform("r0", 0.05, 0.25, value=0.2, observed=True)
