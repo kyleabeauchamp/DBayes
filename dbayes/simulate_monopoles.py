@@ -11,15 +11,17 @@ import mdtraj as md
 
 
 traj = md.load("./monopole.pdb")
-out_dir = os.path.join(os.getenv("HOME"), "dat", "monopoles")
+out_dir = os.path.join(os.getenv("HOME"), "dat", "monopoles-symmetric")
 
-q0 = pymc.Uniform("q0", 0.0, 1.0, value=0.25, observed=True)
+q0 = pymc.Uniform("q0", 0.0, 1.0, value=0.0, observed=True)
 
 sigma0 = pymc.Uniform("sigma0", 0.1, 0.6)
-sigma1 = pymc.Uniform("sigma1", 0.1, 0.6)
+#sigma1 = pymc.Uniform("sigma1", 0.1, 0.6)
+sigma1 = 1.0 * sigma0
 
 epsilon0 = pymc.Uniform("epsilon0", 0.0, 2.0)
-epsilon1 = pymc.Uniform("epsilon1", 0.0, 2.0)
+#epsilon1 = pymc.Uniform("epsilon1", 0.0, 2.0)
+epsilon1 = 1.0 * epsilon0
 
 
 model = pymc.Model([q0, sigma0, epsilon0, sigma1, epsilon1])
