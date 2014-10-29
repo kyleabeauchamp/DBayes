@@ -9,7 +9,7 @@ import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
 
-n_molecules = 1000
+n_molecules = 500
 traj = md.load("./dipoles.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles")
