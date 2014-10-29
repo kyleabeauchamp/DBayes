@@ -9,7 +9,7 @@ import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
 
-
+n_molecules = 1000
 traj = md.load("./dipoles.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles")
@@ -31,7 +31,7 @@ pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()
 for temperature in temperatures:
-    dipole = dipoles.Dipole(1000, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
+    dipole = dipoles.Dipole(n_molecules, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
     traj = dipole.build_box()
     print(dipole)
     try:

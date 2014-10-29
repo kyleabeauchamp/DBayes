@@ -8,7 +8,7 @@ import glob
 
 keys = ["q0", "sigma0"]
 
-filenames = glob.glob("/home/kyleb/dat/simple_dipoles/*.csv")
+filenames = glob.glob("/home/kyleb/dat/dipoles-symmetric/*.csv")
 data = []
 for filename in filenames:
     x = pd.read_csv(filename, skiprows=1, names=["energy", "density"])

@@ -326,7 +326,7 @@ class Monopole(Molecule):
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
 
-def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=250000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=250):
+def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.00005, n_steps=400000, nonbondedCutoff=1.1 * u.nanometer, output_frequency=250, print_frequency=250):
     
     mmtop = molecule.mmtop
      
@@ -336,12 +336,13 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     positions = molecule.traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
+    timestep = 0.5 * u.femtoseconds
     barostat_frequency = 25
     
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
-    integrator = GHMCIntegrator(temperature, friction, 1.0 * u.femtoseconds)
+    integrator = GHMCIntegrator(temperature, friction, timestep)
     
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
 
