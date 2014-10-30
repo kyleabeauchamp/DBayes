@@ -162,9 +162,9 @@ class Molecule(object):
     def traj(self, value):
         self._traj = value
     
-    def build_system(self):
+    def build_system(self, nonbondedCutoff):
         ff = app.ForceField("%s.xml" % self.name)
-        system = ff.createSystem(self.mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds)
+        system = ff.createSystem(self.mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds, nonbondedCutoff=nonbondedCutoff)
         return system
 
     def set_parameters(self, system):
@@ -330,7 +330,7 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     
     mmtop = molecule.mmtop
      
-    system = molecule.build_system()
+    system = molecule.build_system(nonbondedCutoff=nonbondedCutoff)
     molecule.set_parameters(system)
     
     positions = molecule.traj.openmm_positions(0)
