@@ -336,7 +336,7 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     positions = molecule.traj.openmm_positions(0)
 
     friction = 1.0 / u.picoseconds
-    timestep = 0.5 * u.femtoseconds
+    timestep = 1.5 * u.femtoseconds
     barostat_frequency = 25
     
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))

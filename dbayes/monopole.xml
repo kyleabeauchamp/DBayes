@@ -1,8 +1,8 @@
 <ForceField>
 
  <AtomTypes>
-  <Type name="Na" class="Na" element="Na" mass="0.5"/>
-  <Type name="Cl" class="Cl" element="Cl" mass="0.5"/>
+  <Type name="Na" class="Na" element="Na" mass="9.0"/>
+  <Type name="Cl" class="Cl" element="Cl" mass="9.0"/>
  </AtomTypes>
 
  <Residues>

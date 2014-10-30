@@ -14,7 +14,7 @@ traj = md.load("./dipoles.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles-symmetric")
 
-q0 = pymc.Uniform("q0", 0.2, 0.8)
+q0 = pymc.Uniform("q0", 0.4, 0.8)
 
 sigma0 = pymc.Uniform("sigma0", 0.2, 0.3)
 sigma1 = 1.0 * sigma0
