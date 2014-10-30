@@ -34,7 +34,4 @@ for temperature in temperatures:
     dipole = dipoles.Dipole(n_molecules, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
     traj = dipole.build_box()
     print(dipole)
-    try:
-        values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
-    except Exception as e:
-        print(e)
+    values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
