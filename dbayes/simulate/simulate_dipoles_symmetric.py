@@ -32,6 +32,10 @@ pressure = 1.0 * u.atmospheres
 model.draw_from_prior()
 for temperature in temperatures:
     dipole = dipoles.Dipole(n_molecules, q0=q0.value, sigma0=sigma0.value, epsilon0=epsilon0.value, sigma1=sigma1.value, epsilon1=epsilon1.value, r0=r0.value)
-    traj = dipole.build_box()
+    try:
+        t_new = md.load(dcd_filename, top=traj)[-1]  # Try to load traj from last temperature as starting box.
+        dipole.traj = t_new
+    except NameError:  # Otherwise make a shitty one from scratch
+        traj = dipole.build_box()
     print(dipole)
-    values, mu, sigma = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
+    values, mu, sigma, dcd_filename = dipoles.simulate_density(dipole, temperature, pressure, out_dir)

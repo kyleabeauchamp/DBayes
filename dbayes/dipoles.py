@@ -370,5 +370,5 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
         if density_mean_stderr < stderr_tolerance and Neff > 100.:
             converged = True
     print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
-    return d.density.values, density_ts.mean(), density_mean_stderr
+    return d.density.values, density_ts.mean(), density_mean_stderr, dcd_filename
 

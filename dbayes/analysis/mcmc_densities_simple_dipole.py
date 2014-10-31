@@ -46,15 +46,15 @@ for temperature in data.temperature.unique():
 
 #predict = lambda q0, sigma0, temperature: np.array(models[temperature].predict([q0, sigma0], eval_MSE=True))[:, 0]
 predict = lambda q0, sigma0, temperature: np.array(models[temperature](q0, sigma0))
-predict(sigma0=0.2, q0=0.5, temperature=320)
+predict(sigma0=0.25, q0=0.5, temperature=300)
 
-q0 = pymc.Uniform("q0", 0.1, 0.9)
-sigma0 = pymc.Uniform("sigma0", 0.1, 0.3)
+q0 = pymc.Uniform("q0", 0.4, 0.8)
+sigma0 = pymc.Uniform("sigma0", 0.2, 0.3)
 
 
 #temperatures = [280, 300, 320]
-temperatures = [280, 320]
-#temperatures = [300]
+#temperatures = [280, 320]
+temperatures = [300]
 @pymc.deterministic
 def predictions(q0=q0, sigma0=sigma0):
     try:
@@ -63,9 +63,7 @@ def predictions(q0=q0, sigma0=sigma0):
         return [100.] * len(temperatures)
 
 
-#values = np.array([0.038294,  0.038510,  0.038706])
-values = np.array([0.038294,  0.038706])
-#values = np.array([0.052419])
+values = np.array([1.043560])
 relative_error = 0.001
 density_error = values * relative_error
 
