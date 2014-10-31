@@ -366,7 +366,8 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
         [t0, g, Neff] = pymbar.timeseries.detectEquilibration(density_ts)
         density_ts = density_ts[t0:]
         density_mean_stderr = density_ts.std() / np.sqrt(Neff)
-        print("Accept=%f" % (integrator.getGlobalVariable(6) / (1.0 * integrator.getGlobalVariable(7))))        
+        acceptance = (integrator.getGlobalVariable(6) / (1.0 * integrator.getGlobalVariable(7)))
+        print("t0=%d, g=%f, Neff=%f, mu=%f, stderr=%f, Accept=%f" % (t0, g, Neff, density_ts.mean(), density_mean_stderr, acceptance))
         if density_mean_stderr < stderr_tolerance and Neff > 100.:
             converged = True
     print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
