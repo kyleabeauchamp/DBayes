@@ -36,6 +36,6 @@ for temperature in temperatures:
         t_new = md.load(dcd_filename, top=traj)[-1]  # Try to load traj from last temperature as starting box.
         dipole.traj = t_new
     except NameError:  # Otherwise make a shitty one from scratch
-        traj = dipole.build_box()
+        dipole.traj = traj
     print(dipole)
     values, mu, sigma, dcd_filename = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
