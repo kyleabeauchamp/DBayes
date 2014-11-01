@@ -1,3 +1,4 @@
+import sys
 import itertools
 import os
 import pymc
@@ -36,7 +37,10 @@ sigma_grid = linspace(0.2, 0.3, 10)
 #epsilon_grid = linspace(0.2, 0.3, 10)
 
 product_grid = itertools.product(q0_grid, sigma_grid)
-for (q0_val, sigma_val) in product_grid:
+for k, (q0_val, sigma_val) in enumerate(product_grid):
+    if k != int(sys.argv[1]):
+        continue
+    print(k, q0_val, sigma_val)
     q0.value = q0_val
     sigma0.value = sigma_val
     for temperature in temperatures:
