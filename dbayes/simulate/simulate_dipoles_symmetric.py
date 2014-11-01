@@ -32,9 +32,9 @@ temperatures = [280 * u.kelvin, 300 * u.kelvin, 320 * u.kelvin]
 pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()
-q0_grid = linspace(0.4, 0.8, 10)
-sigma_grid = linspace(0.2, 0.3, 10)
-#epsilon_grid = linspace(0.2, 0.3, 10)
+q0_grid = np.linspace(0.4, 0.8, 10)
+sigma_grid = np.linspace(0.2, 0.3, 10)
+#epsilon_grid = np.linspace(0.2, 0.3, 10)
 
 product_grid = itertools.product(q0_grid, sigma_grid)
 for k, (q0_val, sigma_val) in enumerate(product_grid):
