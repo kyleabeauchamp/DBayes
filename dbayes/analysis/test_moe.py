@@ -1,6 +1,6 @@
 import moe
 from moe.easy_interface.experiment import Experiment
-from moe.easy_interface.simple_endpoint import gp_next_points
+from moe.easy_interface.simple_endpoint import gp_next_points, gp_hyper_opt
 import pymbar
 import seaborn as sns
 import scipy.interpolate
@@ -54,6 +54,8 @@ for (q0_val, sigma0_val) in data.set_index(keys).index:
     error = 0.001
     exp.historical_data.append_sample_points([[(q0_val, sigma0_val), value, error]])
 
-next_point_to_sample = gp_next_points(exp, num_points_to_sample=2)
+
+covariance_info = gp_hyper_opt(exp.historical_data.to_list_of_sample_points())
+next_point_to_sample = gp_next_points(exp, covariance_info=covariance_info)
 
 print next_point_to_sample
