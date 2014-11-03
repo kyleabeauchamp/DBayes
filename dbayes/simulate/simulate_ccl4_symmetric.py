@@ -11,10 +11,10 @@ import simtk.openmm as mm
 import simtk.unit as u
 import mdtraj as md
 
-n_molecules = 500
-traj = md.load("./ccl4.pdb")
+n_molecules = 400
+traj = md.load("./tetrahedron.pdb")
 
-out_dir = os.path.join(os.getenv("HOME"), "dat", "dipoles-symmetric-grid")
+out_dir = os.path.join(os.getenv("HOME"), "dat", "ccl4")
 
 q0 = pymc.Uniform("q0", 0.0, 1.0)
 sigma1 = pymc.Uniform("sigma1", 0.3, 0.4)  # 0.347094140587
@@ -34,7 +34,7 @@ for k, (q0_val, sigma_val) in enumerate(product_grid):
         continue
     print(k, q0_val, sigma_val)
     q0.value = q0_val
-    sigma0.value = sigma_val
+    sigma1.value = sigma_val
     for temperature in temperatures:
         dipole = dipoles.Tetrahedron(n_molecules, q0=q0.value, sigma1=sigma1.value)
         try:
