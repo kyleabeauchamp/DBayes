@@ -26,7 +26,7 @@ pressure = 1.0 * u.atmospheres
 
 model.draw_from_prior()
 q0_grid = np.linspace(q0.parents["lower"], q0.parents["upper"], 10)
-sigma_grid = np.linspace(sigma1.parents["lower"], sigma1.parents["lower"], 10)
+sigma_grid = np.linspace(sigma1.parents["lower"], sigma1.parents["upper"], 10)
 
 product_grid = itertools.product(q0_grid, sigma_grid)
 for k, (q0_val, sigma_val) in enumerate(product_grid):
