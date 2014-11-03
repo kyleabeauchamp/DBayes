@@ -7,7 +7,7 @@ import pandas as pd
 import glob
 
 keys = ["q0", "sigma0"]
-data = pd.read_hdf("./symmetric.h5", 'data')
+data = pd.read_hdf("./symmetric-grid.h5", 'data')
 
 Q = data.pivot_table(index=["q0", "sigma0"], columns=["temperature"], values=["energy", "density"])
 #Q = data.pivot_table(index=["q0", "sigma0"], columns="temperature", values="energy")
@@ -26,3 +26,7 @@ sns.interactplot("q0", "sigma0", "density", mydata, cmap="coolwarm", filled=True
 
 #figure()
 #sns.interactplot("q0", "sigma0", "dE0", dE0, cmap="coolwarm", filled=True)
+
+
+X = data[data.temperature == 300]
+X = X[X.sigma0 == 0.2]

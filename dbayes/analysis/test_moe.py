@@ -57,5 +57,4 @@ for (q0_val, sigma0_val) in data.set_index(keys).index:
 
 covariance_info = gp_hyper_opt(exp.historical_data.to_list_of_sample_points())
 next_point_to_sample = gp_next_points(exp, covariance_info=covariance_info)
-
 print next_point_to_sample

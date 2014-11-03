@@ -253,6 +253,45 @@ class Dipole(Molecule):
             f_nonbonded.setParticleParameters(a, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
 
+class Tetrahedron(Molecule):
+    def __init__(self, n_molecules, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2):
+        self.n_molecules = n_molecules
+
+        self.q0 = q0
+        self.sigma0 = sigma0
+        self.sigma1 = sigma1
+        self.epsilon0 = epsilon0
+        self.epsilon1 = epsilon1
+        self.r0 = r0
+        
+        self.name = "tetrahedron"
+
+    def __repr__(self):
+        return "q0=%f, sigma0=%f, sigma1=%f, epsilon0=%f, epsilon1=%f, r0=%f" % (self.q0, self.sigma0, self.sigma1, self.epsilon0, self.epsilon1, self.r0)
+
+    @property
+    def q1(self):
+        return -1.0 * self.q0
+
+    @property
+    def n_atoms(self):
+        return self.n_molecules * 5
+
+    def set_nonbonded(self, system):
+        for force in system.getForces():
+            if type(force) == mm.NonbondedForce:
+                f_nonbonded = force        
+        
+        for i in range(self.n_molecules):
+            a, b0, b1, b2, b3 = 5 * i + np.arange(5)
+            
+            f_nonbonded.setParticleParameters(a, self.q0 * u.elementary_charge, self.sigma0 * u.nanometer, self.epsilon0 * u.kilojoule_per_mole)
+
+            f_nonbonded.setParticleParameters(b0, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(b1, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(b2, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+            f_nonbonded.setParticleParameters(b3, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
+
 
 class Monopole(Molecule):
     def __init__(self, n_molecules, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, name0="Na", name1="Cl"):

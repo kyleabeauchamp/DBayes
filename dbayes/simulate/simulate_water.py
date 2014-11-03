@@ -5,7 +5,7 @@ from simtk import unit
 from sys import stdout
 
 pdb = app.PDBFile("./liquid.pdb")
-forcefield = app.ForceField('tip3pfb.xml')
+forcefield = app.ForceField('tip3p.xml')
 
 system = forcefield.createSystem(pdb.topology, nonbondedMethod=app.PME, nonbondedCutoff=0.9*unit.nanometers)
 integrator = mm.LangevinIntegrator(300 * unit.kelvin, 1.0 / unit.picoseconds, 2.0 * unit.femtoseconds)
@@ -22,9 +22,12 @@ simulation.context.setVelocitiesToTemperature(300*unit.kelvin)
 print('Equilibrating...')
 simulation.step(100)
 
-simulation.reporters.append(app.DCDReporter('trajectory.dcd', 1000))
-simulation.reporters.append(app.StateDataReporter(stdout, 1000, step=True, temperature=True, totalSteps=1000, separator='\t', density=True))
+simulation.reporters.append(app.DCDReporter('trajectory.dcd', 500))
+simulation.reporters.append(app.StateDataReporter(stdout, 5000, step=True, temperature=True, density=True, totalSteps=1000, separator='\t'))
 
 print('Running Production...')
-simulation.step(50000)
+simulation.step(5000000)
 print('Done!')
+
+
+#traj.save("/home/kyleb/src/kyleabeauchamp/mdtraj/MDTraj/testing/reference/tip3p_300K_1ATM.dcd")

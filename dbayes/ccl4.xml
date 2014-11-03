@@ -1,0 +1,39 @@
+<!-- Time and parameters of origin: -->
+<!-- 2014-10-18 17:49:57.918887 -->
+<!--   pylab   gui=wx -->
+
+<ForceField>
+ <AtomTypes>
+  <Type name="lig-0-C1" class="c3" element="C" mass="12.01078"/>
+  <Type name="lig-0-Cl1" class="cl" element="Cl" mass="35.4532"/>
+  <Type name="lig-0-Cl2" class="cl" element="Cl" mass="35.4532"/>
+  <Type name="lig-0-Cl3" class="cl" element="Cl" mass="35.4532"/>
+  <Type name="lig-0-Cl4" class="cl" element="Cl" mass="35.4532"/>
+ </AtomTypes>
+ <Residues>
+  <Residue name="lig-0">
+   <Atom name="C1" type="lig-0-C1"/>
+   <Atom name="Cl1" type="lig-0-Cl1"/>
+   <Atom name="Cl2" type="lig-0-Cl2"/>
+   <Atom name="Cl3" type="lig-0-Cl3"/>
+   <Atom name="Cl4" type="lig-0-Cl4"/>
+   <Bond from="0" to="1"/>
+   <Bond from="0" to="2"/>
+   <Bond from="0" to="3"/>
+   <Bond from="0" to="4"/>
+  </Residue>
+ </Residues>
+ <HarmonicBondForce>
+  <Bond class1="c3" class2="cl" length="0.1786" k="233467.2"/>     
+ </HarmonicBondForce>
+ <HarmonicAngleForce>
+  <Angle class1="cl" class2="c3" class3="cl" angle="1.93783906849" k="453.79664"/>
+ </HarmonicAngleForce>
+ <NonbondedForce coulomb14scale="0.833333" lj14scale="0.5">
+  <Atom type="lig-0-C1" charge="0.339" sigma="0.339966950842" epsilon="0.4577296"/>
+  <Atom type="lig-0-Cl1" charge="-0.0847" sigma="0.347094140587" epsilon="1.10876"/>
+  <Atom type="lig-0-Cl2" charge="-0.0847" sigma="0.347094140587" epsilon="1.10876"/>
+  <Atom type="lig-0-Cl3" charge="-0.0847" sigma="0.347094140587" epsilon="1.10876"/>
+  <Atom type="lig-0-Cl4" charge="-0.0847" sigma="0.347094140587" epsilon="1.10876"/>
+ </NonbondedForce>
+</ForceField>
