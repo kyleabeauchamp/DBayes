@@ -16,8 +16,8 @@ traj = md.load("./tetrahedron.pdb")
 
 out_dir = os.path.join(os.getenv("HOME"), "dat", "ccl4")
 
-q0 = pymc.Uniform("q0", 0.0, 1.0)
-sigma1 = pymc.Uniform("sigma1", 0.3, 0.4)  # 0.347094140587
+q0 = pymc.Uniform("q0", 0.2, 1.0)
+sigma1 = pymc.Uniform("sigma1", 0.325, 0.375)  # 0.347094140587
 
 model = pymc.Model([q0, sigma1])
 
