@@ -365,7 +365,7 @@ class Monopole(Molecule):
             f_nonbonded.setParticleParameters(b, self.q1 * u.elementary_charge, self.sigma1 * u.nanometer, self.epsilon1 * u.kilojoule_per_mole)
     
 
-def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.0005, n_steps=400000, nonbondedCutoff=0.9 * u.nanometer, output_frequency=250, print_frequency=250):
+def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=0.0004, n_steps=400000, nonbondedCutoff=0.9 * u.nanometer, output_frequency=250, print_frequency=250):
     
     mmtop = molecule.mmtop
      

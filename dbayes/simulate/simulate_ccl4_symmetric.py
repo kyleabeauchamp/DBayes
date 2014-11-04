@@ -24,7 +24,6 @@ model = pymc.Model([q0, sigma1])
 temperatures = [280 * u.kelvin, 300 * u.kelvin, 320 * u.kelvin]
 pressure = 1.0 * u.atmospheres
 
-model.draw_from_prior()
 q0_grid = np.linspace(q0.parents["lower"], q0.parents["upper"], 10)
 sigma_grid = np.linspace(sigma1.parents["lower"], sigma1.parents["upper"], 10)
 
