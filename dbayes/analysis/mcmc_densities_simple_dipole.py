@@ -8,49 +8,54 @@ import pandas as pd
 import glob
 
 keys = ["q0", "sigma0"]
-data = pd.read_hdf("./symmetric.h5", 'data')
-
+observables = ["density", "energy", "dielectric"]
+data = pd.read_hdf("./symmetric-grid.h5", 'data')
 
 models = {}
+
 for temperature in data.temperature.unique():
     ind = data.temperature == temperature
-    X = data[ind][keys].values
-    y = data[ind]["density"].values
-    model = sklearn.gaussian_process.GaussianProcess(theta0=1.0, nugget=data[ind]["density_sigma"].values)
-    model.fit(X, y)
-    models[temperature] = model
-    #interp = scipy.interpolate.interp2d(X[:, 0], X[:, 1], y, bounds_error=True)
-    #models[temperature] = interp
+    for observable in observables:    
+        X = data[ind][keys].values
+        y = data[ind][observable].values
+        model = scipy.interpolate.interp2d(X[:, 0], X[:, 1], y, bounds_error=True)
+        models[observable, temperature] = model
 
-predict = lambda q0, sigma0, temperature: np.array(models[temperature].predict([q0, sigma0], eval_MSE=True))[:, 0]
-#predict = lambda q0, sigma0, temperature: np.array(models[temperature](q0, sigma0))
-predict(sigma0=0.25, q0=0.5, temperature=300)
+
+models["density", 280.](0.6, 0.25)
 
 q0 = pymc.Uniform("q0", 0.4, 0.8)
 sigma0 = pymc.Uniform("sigma0", 0.2, 0.3)
 
+"""
+data.pivot_table(index=keys, columns=["temperature"], values=["energy", "density", "dielectric"]).iloc[44]
+            temperature
+energy      280           -58857.570163
+            300           -58709.308689
+            320           -59226.840865
+density     280                1.321589
+            300                1.317470
+            320                1.339186
+dielectric  280               44.281327
+            300               29.744798
+            320               29.375216
+Name: (0.577778, 0.244444), dtype: float64
 
-temperatures = [280, 300, 320]
-#temperatures = [300]
+"""
+
+measurements = []
+measurements.append(dict(temperature=280, observable="density", value=1.321589, error=0.001))
+measurements.append(dict(temperature=280, observable="density", value=1.339186, error=0.001))
+measurements = pd.DataFrame(measurements)
+
 @pymc.deterministic
 def predictions(q0=q0, sigma0=sigma0):
-    try:
-        return [predict(q0=q0, sigma0=sigma0, temperature=t)[0] for t in temperatures]
-    except ValueError:
-        return [100.] * len(temperatures)
+    values = np.zeros(measurements.shape[0])
+    for i, row in measurements.iterrows():
+        values[i] = models[row.observable, row.temperature](q0, sigma0)
+    return values
 
-
-#values = np.array([1.043560])
-values = np.array([1.000998, 1.043560, 1.084166])
-#0.577386 0.255586  1.000998  1.043560  1.084166
-#relative_error = 0.001
-relative_error = 0.002
-density_error = values * relative_error
-
-q0.value = 0.577386
-sigma0.value = 0.255586
-
-experiments = pymc.Normal("observed_density", mu=predictions, tau=density_error ** -2., value=values, observed=True)
+experiments = pymc.Normal("observed_density", mu=predictions, tau=measurements.error.values ** -2., value=measurements.value.values, observed=True)
 
 variables = [q0, sigma0, predictions, experiments]
 mcmc = pymc.MCMC(variables)
