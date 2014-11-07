@@ -161,7 +161,11 @@ class Molecule(object):
     @traj.setter
     def traj(self, value):
         self._traj = value
-    
+
+    @property
+    def atoms_per_molecule(self):
+        return int(self.n_atoms / self.n_molecules)
+
     def build_system(self, nonbondedCutoff):
         ff = app.ForceField("%s.xml" % self.name)
         system = ff.createSystem(self.mmtop, nonbondedMethod=app.PME, constraints=app.AllBonds, nonbondedCutoff=nonbondedCutoff)
@@ -173,6 +177,44 @@ class Molecule(object):
 
     def set_constraints(self, system):
         pass
+
+    def gas_energy(self, out_dir, temperature, output_frequency=50, n_steps=5000):
+        
+        self.traj = self.traj.atom_slice(np.arange(self.atoms_per_molecule))
+
+        mmtop = self.mmtop
+         
+        ff = app.ForceField("%s.xml" % self.name)
+        system = ff.createSystem(self.mmtop, nonbondedMethod=app.NoCutoff, constraints=app.AllBonds)
+
+        n_molecules = self.n_molecules
+        self.n_molecules = 1
+                
+        self.set_parameters(system)
+        self.n_molecules = n_molecules
+
+        positions = self.traj.openmm_positions(0)
+
+        friction = 1.0 / u.picoseconds
+        timestep = 1.0 * u.femtoseconds
+        
+        integrator = GHMCIntegrator(temperature, friction, timestep)
+
+        simulation = app.Simulation(mmtop, system, integrator)
+        simulation.context.setPositions(positions)
+
+        print("minimizing")
+        simulation.minimizeEnergy()
+        simulation.context.setVelocitiesToTemperature(temperature)
+        print("done minimizing")
+
+        csv_filename = os.path.join(out_dir, "%s_%f.gas.csv" % (str(self), temperature / u.kelvin))
+        simulation.reporters.append(app.StateDataReporter(csv_filename, output_frequency, potentialEnergy=True))
+
+        simulation.step(n_steps)
+        d = pd.read_csv(csv_filename, skiprows=1, names=["energy"])
+        return d
+
 
 class Dipole(Molecule):
     def __init__(self, n_molecules, q0=0.5, sigma0=0.3, sigma1=0.3, epsilon0=0.5, epsilon1=0.5, r0=0.2):
@@ -381,6 +423,10 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
     dcd_filename = os.path.join(out_dir, "%s_%f.dcd" % (str(molecule), temperature / u.kelvin))
     csv_filename = os.path.join(out_dir, "%s_%f.csv" % (str(molecule), temperature / u.kelvin))
 
+    if os.path.exists(dcd_filename) or os.path.exists(csv_filename):
+        print("%s or %s already exists!  Skipping!" % (dcd_filename, csv_filename))
+        return
+
     integrator = GHMCIntegrator(temperature, friction, timestep)
     
     system.addForce(mm.MonteCarloBarostat(pressure, temperature, barostat_frequency))
@@ -410,5 +456,5 @@ def simulate_density(molecule, temperature, pressure, out_dir, stderr_tolerance=
         if density_mean_stderr < stderr_tolerance and Neff > 100.:
             converged = True
     print("temperature, density mean, stderr = %f, %f, %f" % (temperature / u.kelvin, density_ts.mean(), density_mean_stderr))
-    return d.density.values, density_ts.mean(), density_mean_stderr, dcd_filename
+    #return d.density.values, density_ts.mean(), density_mean_stderr, dcd_filename
 

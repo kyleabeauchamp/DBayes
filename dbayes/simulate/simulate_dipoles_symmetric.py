@@ -37,7 +37,7 @@ product_grid = itertools.product(q0_grid, sigma_grid)
 
 for k, (q0_val, sigma_val) in enumerate(product_grid):
     if k != int(sys.argv[1]):
-        continue
+        pass#continue
     print(k, q0_val, sigma_val)
     q0.value = q0_val
     sigma0.value = sigma_val
@@ -49,4 +49,5 @@ for k, (q0_val, sigma_val) in enumerate(product_grid):
         except NameError:  # Otherwise use gaff box.
             dipole.traj = traj
         print(dipole)
-        values, mu, sigma, dcd_filename = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
+        #dipoles.simulate_density(dipole, temperature, pressure, out_dir)
+        energy = dipole.gas_energy(out_dir, temperature)

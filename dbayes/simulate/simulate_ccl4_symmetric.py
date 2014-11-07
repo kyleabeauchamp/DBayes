@@ -29,8 +29,8 @@ sigma_grid = np.linspace(sigma1.parents["lower"], sigma1.parents["upper"], 10)
 
 product_grid = itertools.product(q0_grid, sigma_grid)
 for k, (q0_val, sigma_val) in enumerate(product_grid):
-    if k != int(sys.argv[1]):
-        continue
+    #if k != int(sys.argv[1]):
+    #    pass#continue
     print(k, q0_val, sigma_val)
     q0.value = q0_val
     sigma1.value = sigma_val
@@ -42,4 +42,5 @@ for k, (q0_val, sigma_val) in enumerate(product_grid):
         except NameError:  # Otherwise use gaff box.
             dipole.traj = traj
         print(dipole)
-        values, mu, sigma, dcd_filename = dipoles.simulate_density(dipole, temperature, pressure, out_dir)
+        dipoles.simulate_density(dipole, temperature, pressure, out_dir)
+        energy = dipole.gas_energy(out_dir, temperature)
